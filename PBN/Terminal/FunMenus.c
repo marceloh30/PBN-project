@@ -8,7 +8,7 @@ void menuPrincipal( int socket ) {
 	
 		printf(STR_MP);
 
-		opc = opcion(1,7,0);
+		opc = opcion(1,7);
 		
 		switch	( opc ) {
 
@@ -63,7 +63,7 @@ void menuInicial(void){
 	while(opc != 2){
 		
 		printf(STR_MI);
-		opc = opcion(1,2,0);
+		opc = opcion(1,2);
 		
 		
 		if (opc == 1) {
@@ -134,7 +134,7 @@ void Submenu1( int socket ){
 	int opc=-1;
 	while(opc != 3){		
 	
-		opc = opcion(1,3,0);
+		opc = opcion(1,3);
 		
 		switch(opc){
 			case 1:{
@@ -168,7 +168,7 @@ void Submenu2( int socket ){
 	int opc=-1;
 	while(opc != 3){		
 	
-		opc = opcion(1,3,0);
+		opc = opcion(1,3);
 		
 		switch(opc){
 			case 1:{

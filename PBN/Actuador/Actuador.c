@@ -1,14 +1,12 @@
 #include "AFun.h"
 
 int main ( int argc, char *argv[] ) {
-	
 
 	
-	int sockEsc = sockEscuchar( PUERTO_A );
-	
-	Lista *l  = crearLista (void);
+	Lista *listaRps  = crearLista (void);
 	int readfds[]={0, 0, 0, 0, 0};
 	int writefds[]={0, 0, 0, 0, 0};
+	int sockEsc = sockEscuchar( PUERTO_A );
 
 	while(1){ //curso normal
 			
@@ -18,7 +16,7 @@ int main ( int argc, char *argv[] ) {
 	}
 
 	close(sockEsc);
-
+	liberarDatos(listaRps);
 	return EXIT_SUCCESS;
 }
 

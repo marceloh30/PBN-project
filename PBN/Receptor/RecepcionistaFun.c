@@ -16,7 +16,6 @@ void cursoNormalRp(int socketC){
 	
 	int rdsocks[]= {socketA, socketC, 0, 0, 0}; //Permito engancharme a 3 salidas.
 	int wrsocks[]= {socketC, socketA};
-	long time = 5; //Tiempo en segundos
 
 	//Me conecto al bloque A	
 	socketA = sockConectar(LOCALHOST, PUERTO_A); 

@@ -1,19 +1,46 @@
 #include "ConsolaFun.h"
 
 //Eleccion de Opcion
+int opcion(int valorInf, int valorSup){
+	int ingreso;
 
-int opcion(int valorInf, int valorSup, int *exceps){
-	int ingreso,largoEcp;
-	if(exceps == 0){
-		largoEcp = 0;
-	}
-	else{
-	largoEcp = sizeof(exceps) / sizeof(exceps[0]);
-	}
-		printf("\nIngrese opcion: ");
-	while( ! (scanf("%d",&ingreso) && ingreso >= valorInf && ingreso <= valorSup && (!largoEcp || condExcepciones(ingreso,exceps,largoEcp) )) ){
+	printf("\nIngrese opcion: ");
+
+	while( ! ( scanf("%d",&ingreso) && ingreso >= valorInf && ingreso <= valorSup ) ) {
+
 		scanf("%*[^\n]"); //Limpio buffer
 		printf("\nIngreso incorrecto.\nPor favor, ingrese un valor de la lista: ");
+
+	}			
+	return ingreso;
+}
+////
+
+//Eleccion de pids de la lista
+int opcionPID (int *pids) {
+
+	int ingreso, largoPids, i;
+	int ingresoCorrecto = 0;
+
+	if(pids == 0) {
+		largoPids = 0;
+	}
+	else {
+	largoPids = sizeof(pids) / sizeof(pids[0]);
+	}
+
+	printf("\nIngrese PID: ");
+
+	while( ! ( scanf("%d", &ingreso) && !ingresoCorrecto ) ) {
+
+		scanf("%*[^\n]"); //Limpio buffer		
+
+		for(i = 0; i < largoPids; i++) {
+
+			ingresoCorrecto = ingreso == pids[i] ? 1 : 0;
+		}
+
+	 	!ingresoCorrecto ? printf("\nIngreso incorrecto.\nPor favor, ingrese un valor de la lista: ") : printf("Ingreso correcto. \n");		
 	}	
 	
 			
@@ -22,18 +49,36 @@ int opcion(int valorInf, int valorSup, int *exceps){
 ////
 
 
-//Excepciones de una lista: condExcepciones()
+//Obtener pids para opcionPID()
+int *getPids(char *lista) {
+	int pidBuf[100];
+	int *pids = pidBuf;
+	char c;
+    
+    	int i, dig, num = 0, j = 0;
 
-int condExcepciones(int ingreso, int *exceps, int largoEcp) {
-	int ret=1;
-	int i;
-	for(i=0; i<=largoEcp; i++){
-		if (ingreso == exceps[i]) ret=0; //Si el ingreso coincide con alguna exc., devuelvo "false"(cero)
+	for ( i=0; i <= strlen(lista); i++ ) {
+
+    		c = lista[i];
+
+		if ( isdigit(c) ) {
+
+			dig = atoi(&c);
+			num = num*10 + dig;
+		}	
+		else if (j <= 100){ 
+	
+			pids[j] = num;
+			j++;
+			num = 0;	
+		}
+    		
 	}
-	return ret;
-}
-////
 
+return pids;
+}
+////	
+	
 
 //Seleccion de proceso de una lista:
 
@@ -47,10 +92,6 @@ int seleccionProceso ( int filtro, int socket ) {
 	
 	if (lectura[0] != MSJ_ERROR) {
 		
-		int limites[] = { 0 , 0 };
-		getLimites (lectura, limites);	//Cargo los valores correctos del array
-		int excep[] = {0};	
-
 		char *lista = devolverLista( lectura ); 
 
 		pidSeleccionado = ERROR_PID;
@@ -59,7 +100,7 @@ int seleccionProceso ( int filtro, int socket ) {
 			
 			printf("Elija un PID de la lista :\n%s", lista);
 
-			pidSeleccionado = opcion(limites[0], limites[1], excep);		
+			pidSeleccionado = opcionPID ( getPids(lectura) );		
 		}
 		
 	}
@@ -73,76 +114,64 @@ int seleccionProceso ( int filtro, int socket ) {
 ////
 
 
-//Obtener numeros faltantes en una lista: getExcepLista()
 
-int *getExcepLista(char *lista) {
-	
-	int excepciones[100];
-
-	int prev = atoi(lista); //Obtengo el primer valor de la lista
-	
-	while(){	
-	
-	
-	return lista; 
-}
-////
-
-
-//Obtener limites de eleccion de una lista para el usuario: getLimites()
-void getLimites(char lista[], int limites[]) {
-
-	char c;
-	int max = 0;
-	int min = 101; //Minimo es mayor a la maxima cantidad de procesos (entonces es como decir de la lista)
-    
-    	int i, dig, num = 0;
-
-	for ( i=0; i <= strlen(lista); i++ ) {
-
-    		c = lista[i];
-
-		if ( isdigit(c) ) {
-
-			dig = atoi(&c);
-			num = num*10 + dig;
-		}	
-		else { 
-	
-			if ( (num != 0) && (max < num) ) {
-					
-				max = num;
-			}
-			if ( (num != 0) && (min > num) ) {
-
-				min = num;
-			}
-			num = 0;	
-		}
-    		
-	}
-
-	limites[0] = min ;
-	limites[1] = max ; //Guardo en array minimo y maximo.
-		
-}
-////	
-	
 	
 	
 
 //Devolucion de lista amigable al usuario: devolverLista()
 
-char *devolverLista(char *datos){
-	//char ret[BUF_SIZE];
-	//char *str1, *str2;
+char *devolverLista(char *datos, int filtro){
+	
+	char ret[BUF_SIZE];
 
-	//Realizo primer strtok y luego itero:
-	
+	switch (filtro) {
 
-		
+		case FILTRO_SP: { 
+
+			char cla[BUF_SIZE];
+			strcpy(cla,datos); //Paso a array de char para funcionamiento correcto de strtok()
+
+			int num, verif = 0;
+
+			char *chr;
+			char *saveptr1, *saveptr2;
+			char *res;
+			
+			sprintf(ret, "\nLista de PIDs segun sesion/planificador:\n");
+
+			while  ( NULL != (res = ( strtok_r( (verif ? NULL : cla ),",",&saveptr1) ) ) )   {
+				verif = 1;
+
+				chr = strtok_r(res,"-",&saveptr2);
+
+				num = atoi(strtok_r(NULL,"-",&saveptr2));
+
+				if(chr[0] == 's'){
+					sprintf(ret, "%s[%d] - Sesion\n", ret, num);
+				}
+				else {
+
+					sprintf(ret, "%s[%d] - Planificador\n", ret, num);
+
+				}
+
+			}
+			sprintf(ret, "%s\n", ret);
+			
+		}
 	
+		case FILTRO_ALL: {
+
+
+
+
+
+
+		}
+
+	}
 	
-	return datos;
+	return ret;
+
 }
 ////

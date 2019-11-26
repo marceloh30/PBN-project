@@ -40,8 +40,8 @@ char *enviarAccion ( int accion, int datoNum, char *datos, int socket ) {
 	if ( (write(socket, msj, BUF_SIZE)) < BUF_SIZE ) {
 		
 		perror("Ocurrió un error al enviar mensaje al sistema");
-		ret="  ";
-		sprintf(ret, "%c%c", MSJ_ERROR, '\0');
+		ret=" ";
+		sprintf(ret, "%c", MSJ_ERROR);
 }
 	else {
 		if ( (accion == ACT_LISTA) || (accion == ACT_EST) ) {
@@ -50,8 +50,8 @@ char *enviarAccion ( int accion, int datoNum, char *datos, int socket ) {
 			
 				perror("Ocurrió un error al leer mensaje del sistema");
 
-				ret="  ";
-				sprintf(ret, "%c%c", MSJ_ERROR, '\0');
+				ret=" ";
+				sprintf(ret, "%c", MSJ_ERROR);
 				
 			}
 			else {
@@ -62,8 +62,8 @@ char *enviarAccion ( int accion, int datoNum, char *datos, int socket ) {
 		}
 		else {
 			
-			ret="  ";
-			sprintf(ret, "%c%c", MSJ_ENVIADO, '\0');
+			ret=" ";
+			sprintf(ret, "%c", MSJ_ENVIADO);
 		}
 	}
 	
