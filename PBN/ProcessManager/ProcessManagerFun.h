@@ -5,6 +5,7 @@
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
 //Macros:
 #define TIEMPO_SEC 50
 #define TIEMPO_MILISEC 0
@@ -16,7 +17,7 @@
 //
 //int guardarDataEnSHM(int pidProc,struct imagenProceso *imagProc); //Guardo en SHM accion realizada sobre proceso y su imagen
 
-void reanudarProceso(pid_t pid);
+int reanudarProceso(pid_t pid);
 
 int suspenderProceso(pid_t pid);
 
@@ -25,4 +26,6 @@ int suspenderProceso(pid_t pid);
 int ejecutar(pid_t pid);
 
 void signal_handler(int signal);
+
+int lugarVacio(void *shm);
 
