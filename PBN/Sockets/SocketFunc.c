@@ -93,10 +93,8 @@ int sockConectar (char* dir, uint16_t port) {
 	return sockId;
 }
 
-
-char *selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long time_out, char *buffer[], int newSockRead, char (*actLectura)(char *), char (*actEscritura)(char *)) {
-	
-	char *ret = ""; //Retorna los nuevos socketsfds de !!
+//Solo devuelve las nuevas conexiones.
+int selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long t_out, char *buff[], char *(*actRd)(char *), int (*actWr)(char *)) {
 	
 
 	int i, newSock, maxfd = 0, s = -1; //Tomo s = -10 para ver si
@@ -142,7 +140,7 @@ char *selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long tim
 	}
 	
 	// Cargar el timeout
-	timeout.tv_sec = time_out;
+	timeout.tv_sec = t_out;
 	timeout.tv_usec = 0;
 
 	// Enccontrar el mayor filedescriptor DE TODOS
@@ -157,7 +155,6 @@ char *selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long tim
 	maxfd = maxfd < myexceptfd ? myexceptfd : maxfd;
 	
 
-
 	// EJECUTO SELECT
 	while ( (s = select(maxfd + 1, &readfds, &writefds, &exceptfd, &timeout)) >= 0) {
 
@@ -168,12 +165,13 @@ char *selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long tim
 
 				if (FD_ISSET(myreadfds[i], &readfds)) {
 
-						read (myreadfds[i], buffer[i], BUF_SIZE);
-						actLectura(buffer[i]);
-						
-
+					read (myreadfds[i], buff[i], BUF_SIZE);
+					
+					buff[i] = actRd(buff[i]);	
+					
 				} else {
-						FD_SET(myreadfds[i], &readfds);
+					
+					FD_SET(myreadfds[i], &readfds);
 
 				}
 			}
@@ -181,13 +179,13 @@ char *selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long tim
 			for ( i = 0; i < nw; i++) {
 
 				if (FD_ISSET(mywritefds[i], &writefds)) {
-
-						write (mywritefds[i], buffer[i], BUF_SIZE);
-						actEscritura(buffer[i]);
-
+						
+					if ( actWr(buff[i]) ) {
+						write (mywritefds[i], buff[i], BUF_SIZE);
+					}
+					
 				} else {
 						FD_SET(mywritefds[i], &writefds);
-
 				}
 			}
 			// reviso el filedescriptor de excepcion(escucha)
@@ -195,22 +193,7 @@ char *selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long tim
 			if (FD_ISSET(myexceptfd, &exceptfd)) {
 
 				newSock = sockAceptar(myexceptfd);
-						
-				//Evaluo segun newSockRead dado por proc. si es read o write
-				char *add = "";						
-
-				if( newSockRead ) {
-
-					sprintf(add, "%d,r\n", newSock);
-					sprintf(ret,"%s-%s", ret, add);
-				}
-
-				else {
-
-					sprintf(add, "%d,w\n", newSock);
-					sprintf(ret,"%s-%s", ret, add);
-				}
-													
+							
 			} 
 				
 			else {
@@ -223,6 +206,5 @@ char *selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long tim
 
 	}
 	
-	return ret;
-
+	return newSock;
 }

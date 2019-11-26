@@ -2,21 +2,33 @@
 
 int main ( int argc, char *argv[] ) {
 
+	Lista *listaRps = crearLista(void);
 	
-	Lista *listaRps  = crearLista (void);
-	int readfds[]={0, 0, 0, 0, 0};
-	int writefds[]={0, 0, 0, 0, 0};
-	int sockEsc = sockEscuchar( PUERTO_A );
-
-	while(1){ //curso normal
+	int readfds[100];
+	int writefds[100];
+	char *buffers[100];
+	
+	int newfd, sockEsc = sockEscuchar(PUERTO_A);
+	int i;
+	
+	while(1) { //Curso normal
 			
-		selectSockets (readfds, writefds, sockEsc, SEL_TIMEOUT, char *buffer[], 1, accionSHM, devolverMsj);
-				
-
+		newfd = selectSockets (readfds, writefds, sockEsc, SEL_TIMEOUT, buffers, leerDatos, devolverMsj);				
+		
+		if (newfd > 0) {
+			
+			agregarNodo (listaRps, newfd);				
+			
+			readfds[lista.cant] = newfd;
+			writefds[lista.cant] = newfd;
+			
+		}	
+		
 	}
 
 	close(sockEsc);
 	liberarDatos(listaRps);
+	
 	return EXIT_SUCCESS;
 }
 

@@ -50,7 +50,7 @@ int opcionPID (int *pids) {
 
 
 //Obtener pids para opcionPID()
-int *getPids(char *lista) {
+int *getPids (char *lista) {
 	int pidBuf[100];
 	int *pids = pidBuf;
 	char c;
@@ -66,7 +66,7 @@ int *getPids(char *lista) {
 			dig = atoi(&c);
 			num = num*10 + dig;
 		}	
-		else if (j <= 100){ 
+		else if (j <= 100) { 
 	
 			pids[j] = num;
 			j++;
@@ -82,7 +82,7 @@ return pids;
 
 //Seleccion de proceso de una lista:
 
-int seleccionProceso ( int filtro, int socket ) {
+int seleccionProceso (int filtro, int socket) {
 	
 	printf("Accediendo a datos del sistema...\n\n");
 	
@@ -120,26 +120,26 @@ int seleccionProceso ( int filtro, int socket ) {
 
 //Devolucion de lista amigable al usuario: devolverLista()
 
-char *devolverLista(char *datos, int filtro){
+char *devolverLista (char *datos, int filtro) {
 	
 	char ret[BUF_SIZE];
-
+	char dataTmp[BUF_SIZE];
+	strcpy(dataTmp,datos); //Paso a array de char para funcionamiento correcto de strtok()
+	
+	int num, verif = 0;
+	
+	char *saveptr1;
+	char *res;
+	
 	switch (filtro) {
 
 		case FILTRO_SP: { 
 
-			char cla[BUF_SIZE];
-			strcpy(cla,datos); //Paso a array de char para funcionamiento correcto de strtok()
-
-			int num, verif = 0;
-
-			char *chr;
-			char *saveptr1, *saveptr2;
-			char *res;
+			char *chr, *saveptr2;
 			
 			sprintf(ret, "\nLista de PIDs segun sesion/planificador:\n");
 
-			while  ( NULL != (res = ( strtok_r( (verif ? NULL : cla ),",",&saveptr1) ) ) )   {
+			while  ( NULL != (res = ( strtok_r( (verif ? NULL : dataTmp ),",",&saveptr1) ) ) )   {
 				verif = 1;
 
 				chr = strtok_r(res,"-",&saveptr2);
@@ -160,14 +160,19 @@ char *devolverLista(char *datos, int filtro){
 			
 		}
 	
-		case FILTRO_ALL: {
+		case FILTRO_ALL || FILTRO_SUSP || FILTRO_ACT : {
 
+			sprintf(ret, "\nLista de PIDs:\n");
 
-
-
-
-
+			while  ( NULL != (res = ( strtok_r((verif ? NULL : dataTmp ),",",&saveptr1) ) ) )   {
+				verif = 1;
+				
+				num = atoi(res);
+				sprintf(ret, "%s-[%d]\n", ret, num);
+			}	
 		}
+		
+		case default: perror("Error de filtro");
 
 	}
 	

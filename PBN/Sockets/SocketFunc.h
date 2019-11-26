@@ -54,6 +54,6 @@ int sockAceptar (int sockId);
 
 int sockConectar (char* dir, uint16_t port);
 
-char *selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long time_out, char *buffer[], int newSockRead, char (*actLectura)(char *), char (*actEscritura)(char *));
+int selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long t_out, char *buff[], char *(*actRd)(char *), int (*actWr)(char *));
 
 #endif

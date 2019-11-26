@@ -2,7 +2,11 @@
 #define _AFUN_H_
 
 #include "../Sockets/SocketFunc.h"
+#include "../SHM/SHMFun.h"
+#include "../GeneralFunctions.h"
 #include <stdio.h>
+
+#define WRITE_SOCK 1
 
 typedef struct nodo {
 	
@@ -19,10 +23,13 @@ typedef struct lista {
 } Lista;
 
 char *leerDatos (char *buf);
-void escribirDatos (char *buf);
-Lista *crearLista ( void );
-Nodo *AgregarNodoPpio ( Lista *l, int data );
-Nodo *ultimoNodo ( Lista *l );
-Nodo *agregarNodo ( Lista *l, int data );
+int getEstado (int pid); 
+void devolverMsj (char *buf);
+
+Lista *crearLista (void);
+Nodo *AgregarNodoPpio ( ista *l, int data);
+Nodo *ultimoNodo (Lista *l);
+Nodo *agregarNodo (Lista *l, int data);
+void liberarDatosLista (Lista *l);
 
 #endif
