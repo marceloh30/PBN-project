@@ -114,11 +114,4 @@ int buscarProc(int pid){
 	return ret;
 }
 
-/*
-typedef struct proceso {
-    pid_t pid;
-    char *data;   //Largo maximo del nombre es 255 en Unix (dir + parametros!!)
-    int estado;   // Ej. ejecutar
-    char *creador;
-} Proceso;
-*/
+
