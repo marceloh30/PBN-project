@@ -33,7 +33,6 @@ int *crearProcSis( int puerto ){ //Devuelvo los pid para el cierre del sistema
 	
 	/* -> Ir Haciendo...
 
-
 	else if( (pidL = ejecProceso(DIR_L, argL)) < 0 ){
 
 		kill(pidPM,SIGKILL);	
