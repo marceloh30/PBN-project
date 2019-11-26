@@ -5,7 +5,7 @@ int suspenderProceso(pid_t pid){
     return kill(pid,SIGSTOP);
 }
 
-void reanudarProceso(pid_t pid){
+int reanudarProceso(pid_t pid){
     // SIGCONT reanuda la ejecucion
     kill(pid,SIGCONT);
 }
@@ -39,62 +39,74 @@ int ejecutar(pid_t pid){
    return suspenderProceso(pid);
 }
 
-//int accionATomar(Proceso proc, Proceso *direc){
-//
-//    int ret, pid;
-//
-//	//Consigo argumentos desde proc.data y los mando a ejecutar.
-//
-//    switch (proc.estado) {
-//
-//        case NUEVO:
-//
-//			//Crea el proceso y guarda el pid
-//
-//            if ( ( pid = ejecProceso( proc.data , NULL) ) != -1 ) {
-//
-//				proc.pid = pid;
-//                sleep(5);
-//                suspenderProceso(proc.pid);
-//
-//
-//                ret = 0;
-//
-//            } else {
-//                ret = -1;
-//            }
-//
-//            break;
-//
-//        case ELIMINAR:
-//
-//            kill(proc.pid,SIGKILL);
-//            proc.estado = ELIMINADO;
-//            *direc = proc;
-//            ret =0;
-//
-//            break;
-//
-//        case ACTIVO:
-//
-//            proc.estado = EN_EJECUCION;
-//            ejecutar(proc.pid);
-//            proc.estado = ACTIVO;
-//            ret = 0;
-//
-//            break;
-//
-//        default:
-//
-//            ret = 0;
-//
-//            break;
-//    }
-//
-//    return ret;
-//}
+int accionATomar(Proceso *direc){
+
+    int ret, pid;
+    Proceso proc = *direc;
+
+	//Consigo argumentos desde proc.data y los mando a ejecutar.
+
+    switch (proc.estado) {
+
+        case NUEVO:
+
+			//Crea el proceso y guarda el pid
+
+            if ( ( pid = ejecProceso( proc.data , NULL) ) != -1 ){
+				proc.pid = pid;
+                
+                if( suspenderProceso(proc.pid) != -1 ){
+                    
+                    ret = ejecutar(pid);
+                    
+                } else ret FINALIZO;
+                
+            } else {
+                
+                ret = NO_CREADO;
+                
+            }
+
+            break;
+
+        case ELIMINAR:
+
+            kill(proc.pid,SIGKILL);
+            proc.estado = ELIMINADO;
+            *direc = proc;
+            ret =0;
+
+            break;
+
+        case ACTIVO:
+
+            proc.estado = EN_EJECUCION;
+            *direc = proc;
+            ejecutar(proc.pid);
+            proc.estado = ACTIVO;
+            ret = 0;
+
+            break;
+
+        default:
+
+            ret = 0;
+
+            break;
+    }
+
+    return ret;
+}
 
 void signal_handler( int signal ){
+    switch (signal) {
+        case SIGTERM:
+            
+            break;
+            
+        default:
+            break;
+    }
     printf("\nMurio\n");
 }
 

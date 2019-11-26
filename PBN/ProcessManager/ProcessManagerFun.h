@@ -9,6 +9,8 @@
 //Macros:
 #define TIEMPO_SEC 50
 #define TIEMPO_MILISEC 0
+#define NO_CREADO -1
+#define FINALIZO -2
 
 //Firmas:
 //int accionSHM(short int pidProceso, char *data); //Devuelve pid del proceso al cual realizó una accion
