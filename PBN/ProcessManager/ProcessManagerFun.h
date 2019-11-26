@@ -2,8 +2,13 @@
 #include "../GeneralFunctions.h"
 #include <setjmp.h>
 #include <signal.h>
-
+#include <sys/time.h>
+#include <sys/wait.h>
+#include <unistd.h>
 //Macros:
+#define TIEMPO_SEC 50
+#define TIEMPO_MILISEC 0
+
 //Firmas:
 //int accionSHM(short int pidProceso, char *data); //Devuelve pid del proceso al cual realizó una accion
 //
@@ -13,11 +18,11 @@
 
 void reanudarProceso(pid_t pid);
 
-void suspenderProceso(pid_t pid);
+int suspenderProceso(pid_t pid);
 
-int accionATomar(Proceso unProceso);
+//int accionATomar(Proceso proc, Proceso *direc);
 
-void ejecutar(pid_t pid);
+int ejecutar(pid_t pid);
 
 void signal_handler(int signal);
 

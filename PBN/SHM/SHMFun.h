@@ -1,11 +1,17 @@
-#ifndef _SHMFUN_H_
-#define _SHMFUN_H_
-
 #include <stdio.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct proceso {
+    pid_t pid;
+    char *data;   //Largo maximo del nombre es 255 en Unix (dir + parametros!!)
+    int estado;   // Ej. ejecutar
+    char *creador;
+} Proceso;
 
 //Macros
 
@@ -14,9 +20,9 @@
 #define SHM_SIZE 2048
 
 //Firmas
-int desconectarSHM(char *path);
+int desconectarSHM(void *shmp);
 
-int eliminarSHM(char *path);
+int eliminarSHM(int ID);
 
 void *conectarSHM(char *path);
 
@@ -24,4 +30,6 @@ int generarID(char *path);
 
 void *crearSHM(char *path);
 
-#endif
+char *crearArray(Proceso unProceso);
+
+Proceso crearEstructura(char *proArray);

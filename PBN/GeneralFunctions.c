@@ -18,11 +18,3 @@ int ejecProceso(char *dir, char *arg[]){
     return ret;
 }
 
-//Proceso crearPaquete(char *direccion, char *creador){
-//    Proceso unProceso;
-//    unProceso.pid = NULL;
-//    unProceso.direccion = direccion;
-//    unProceso.estado = PARA_EJECUTAR;
-//    unProceso.creador = creador;
-//    return unProceso;
-//}

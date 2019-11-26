@@ -2,6 +2,8 @@
 
 int main ( int argc, char *argv[] ) {
 
+	
+	
 	Lista *listaRps = crearLista(void);
 	
 	int readfds[100];

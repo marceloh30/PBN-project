@@ -21,13 +21,14 @@ void *crearSHM(char *path){
     // Si retorna NULL, hubo un error al generar la id
     int id;
     void *shmp = NULL;
+    key_t key;
     
     if( (key = ftok(path,SHM_ID)) == -1 ){
         perror("Error al generar key: ");
     }else {
     	if( (id = shmget(key, SHM_SIZE, IPC_CREAT | IPC_EXCL)) == -1 ){
             perror("Error al generar la ID: ");
-            if( errno == EEXIST ) eliminarSHM(path);
+            if( errno == EEXIST ) eliminarSHM(id);
     	} else {
             shmp = shmat(id, NULL, 0);
             perror("Error al crear SHM: ");
@@ -44,7 +45,7 @@ void *conectarSHM(char *path){
     int id;
     void *shmp = NULL;
     
-    if( (generarID(path) = id) != -1 ){
+    if( (id = generarID(path)) != -1 ){
         shmp = shmat(id, NULL, 0);
         perror("Error al conectarce a la SHM: ");
         printf("%d\n",id);
@@ -53,29 +54,20 @@ void *conectarSHM(char *path){
     return shmp;
 }
 
-int eliminarSHM(char *path){
-    int id, ret;
+int eliminarSHM(int id){
+    int ret;
     
-    if( (generarID(path) = id) == -1 ){
-        ret = shmctl(id, IPC_RMID, NULL);
-        perror("\nError al eliminar SHM: ");
-    }
+    ret = shmctl(id, IPC_RMID, NULL);
+    perror("\nError al eliminar SHM: ");
     
     return ret;
 }
      
-int desconectarSHM(char *path){
+int desconectarSHM(void *shmp){
     int ret = -1;
-    void *shmp;
     
-    if( generarID(path) != -1 ){
-        if( (shmp = shmat(id, NULL, 0)) == -1 ){
-            perror("\nError al desconectarce de SHM: ");
-        } else{
-            ret = shmdt(shmp);
-            perror("\nError al desconectarce de SHM: ");
-        }
-    }
+    ret = shmdt(shmp);
+    perror("\nError al desconectarce de SHM: ");
     
     return ret;
 }
@@ -93,3 +85,40 @@ int generarID(char *path){
               
     return id;
 }
+
+Proceso crearEstructura(char *proArray){
+    Proceso unProceso;
+    
+    unProceso.pid = atoi(strtok(proArray,","));
+    unProceso.data = strtok(NULL,",");
+    unProceso.estado = atoi(strtok(NULL,","));
+    unProceso.creador = strtok(NULL,",");
+    
+    return unProceso;
+}
+
+char *crearArray(Proceso unProceso){
+    char *retorno = NULL;
+    
+    sprintf(retorno,"%d,%s,%d,%s",unProceso.pid,unProceso.data,unProceso.estado,unProceso.creador);
+
+    return retorno;
+}
+
+int buscarProc(int pid){
+	int ret = 0;
+	
+	
+	
+	
+	return ret;
+}
+
+/*
+typedef struct proceso {
+    pid_t pid;
+    char *data;   //Largo maximo del nombre es 255 en Unix (dir + parametros!!)
+    int estado;   // Ej. ejecutar
+    char *creador;
+} Proceso;
+*/
