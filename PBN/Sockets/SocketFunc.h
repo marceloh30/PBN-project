@@ -1,0 +1,43 @@
+#ifndef _SOCKETFUNC_H
+#define _SOCKETFUNC_H_
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h> //para Sleep
+#include <sys/socket.h>
+#include <netinet/in.h> // dirs de Socket
+#include <arpa/inet.h> 	// 	"		"
+#include <string.h>  //Para strchr
+
+
+//Macros
+#define SOCKET_ERROR -1
+
+#define SEL_TIMEOUT 5
+
+#define MAX_CLIENTS 8 //Maxima cantidad de clientes en el sistema
+#define LOCALHOST "127.0.0.1"
+
+#define MAXFDS 100 //Cantidad maxima de sockets en un select
+
+#define BUF_SIZE 512 //largo de mensajes para los sockets
+
+#define TIME_OUT 10
+
+//Puertos predefinidos
+#define PUERTO_A 4028 
+
+
+
+//Firmas
+int sockEscuchar (uint16_t port);
+
+int configurarSocketL (int sockId, struct sockaddr_in structSock, uint16_t puerto);
+
+int sockAceptar (int sockId);
+
+int sockConectar (char* dir, uint16_t port);
+
+char *selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long time_out, char *buffer[], int newSockRead, char (*actLectura)(char *), char (*actEscritura)(char *));
+
+#endif
