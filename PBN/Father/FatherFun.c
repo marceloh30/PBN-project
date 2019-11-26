@@ -1,24 +1,18 @@
 #include "FatherFun.h"
 
 int *crearProcSis( int puerto ){ //Devuelvo los pid para el cierre del sistema
+    //Se inicializan los valores para evitar los warnigs
     int ret;
-    int retorno[];
-    
-    //-----// Se inicializan los valores para evitar los warnigs
     int pidR = 0;
     int pidL = 0;
     int pidPM = 0;
     int pidA = 0;
-    //-----//
-    
-    //-----// Se definen los argurmentos para cada proceso
     char *port = NULL;
     sprintf(port,"%d",puerto);
 	char *argR[] = { DIR_R, port, NULL };
 	char *argL[] = { DIR_L, NULL };
 	char *argPM[] = { DIR_PM, NULL };
 	char *argA[] = { DIR_A, NULL };
-    //-----//
 	
 	if( (pidPM = ejecProceso(DIR_PM, argPM)) < 0 ){
 		//No pude crear PM ni sistema.
@@ -52,7 +46,7 @@ int *crearProcSis( int puerto ){ //Devuelvo los pid para el cierre del sistema
 	else ret = EXIT_SUCCESS;
     pidL = -1;  // Para que funcione correctamente
     
-    retorno[] = {ret, pidR, pidL, pidPM, pidA};
+    int retorno[]= {ret, pidR, pidL, pidPM, pidA};
     return retorno;
 	
 }

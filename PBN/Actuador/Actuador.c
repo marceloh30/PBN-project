@@ -2,7 +2,7 @@
 
 int main ( int argc, char *argv[] ) {
 
-	
+	Proceso *shm = (Proceso) *conectarSHM(SHM_PATH);
 	
 	Lista *listaRps = crearLista(void);
 	
@@ -11,12 +11,12 @@ int main ( int argc, char *argv[] ) {
 	char *buffers[100];
 	
 	int newfd, sockEsc = sockEscuchar(PUERTO_A);
-	int i;
-	
+
 	while(1) { //Curso normal
 			
-		newfd = selectSockets (readfds, writefds, sockEsc, SEL_TIMEOUT, buffers, leerDatos, devolverMsj);				
-		
+		newfd = selectSockets (readfds, writefds, sockEsc, SEL_TIMEOUT, buffers, leerDatos, devolverMsj);	
+			
+		//Si tengo un nuevo socket (con algun nuevo Rp) lo agreso para leer y escribir:
 		if (newfd > 0) {
 			
 			agregarNodo (listaRps, newfd);				
@@ -24,8 +24,7 @@ int main ( int argc, char *argv[] ) {
 			readfds[lista.cant] = newfd;
 			writefds[lista.cant] = newfd;
 			
-		}	
-		
+		}			
 	}
 
 	close(sockEsc);

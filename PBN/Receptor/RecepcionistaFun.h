@@ -12,4 +12,7 @@
 void cursoNormalRp(int socketC);
 int buscarCantidad(int array[]);
 
+char *rdFun (char *buf);
+void wrFun (char *buf);
+
 #endif

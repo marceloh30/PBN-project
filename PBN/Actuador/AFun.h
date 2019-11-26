@@ -24,7 +24,7 @@ typedef struct lista {
 
 char *leerDatos (char *buf);
 int getEstado (int pid); 
-void devolverMsj (char *buf);
+int devolverMsj (char *buf);
 
 Lista *crearLista (void);
 Nodo *AgregarNodoPpio ( ista *l, int data);

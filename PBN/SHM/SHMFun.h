@@ -14,6 +14,9 @@ typedef struct proceso {
 } Proceso;
 
 //Macros
+
+#define SHM_PATH "../SHM/keyGeneratorSHM"
+
 #define SHM_FAIL -1
 #define SHM_ID 1234
 #define SHM_SIZE 2048
