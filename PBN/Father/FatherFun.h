@@ -11,4 +11,4 @@
 //Firmas
 int *crearProcSi ( int puerto );
 
-void eliminarSistema(int *arg);
+void eliminarSistema(int *pid, int id, void *shm);

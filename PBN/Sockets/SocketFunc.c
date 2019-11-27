@@ -94,7 +94,7 @@ int sockConectar (char* dir, uint16_t port) {
 }
 
 //Solo devuelve las nuevas conexiones.
-int selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long t_out, char *buff[], char *(*actRd)(char *), int (*actWr)(char *)) {
+int selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long t_out, char *buff[], char *(*actRd)(char *, void *), void *shm, int (*actWr)(char *)) {
 	
 
 	int i, newSock, maxfd = 0, s = -1; //Tomo s = -10 para ver si
@@ -167,7 +167,7 @@ int selectSockets (int myreadfds[], int mywritefds[], int myexceptfd, long t_out
 
 					read (myreadfds[i], buff[i], BUF_SIZE);
 					
-					buff[i] = actRd(buff[i]);	
+					buff[i] = actRd(buff[i], shm);	
 					
 				} else {
 					

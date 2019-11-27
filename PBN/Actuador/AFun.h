@@ -24,8 +24,8 @@ typedef struct lista {
 } Lista;
 
 
-char *leerDatos (char *buf);
-int getEstado (int pid); 
+char *leerDatos (char *buf, void *shm);
+int getEstado (int pid, void *shm); 
 int devolverMsj (char *buf);
 
 Lista *crearLista (void);

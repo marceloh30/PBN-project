@@ -6,6 +6,7 @@ int main(){
 	//int puerto = atoi(argv[1]);
 
     Proceso listPro[100];
+
         void *shm = crearSHM(DIR_KEY_SHM);
         Proceso *lista;
         lista = (Proceso *)(shm + 50);
@@ -17,12 +18,13 @@ int main(){
             lista[0] = pro;
         lista[1]=pro1;
 
-        printf("\nPrintf: %d-%d\n",pro2.estado,lista[1].estado);
+        printf("\nPrintf: %d-%d\n",pro1.estado,lista[1].estado);
         eliminarSHM(id);
         desconectarSHM((void *)shm);
         
         
         //Codigo para suspenderse
+
 
 
 	return EXIT_SUCCESS;
