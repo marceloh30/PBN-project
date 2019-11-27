@@ -1,22 +1,16 @@
 #include "RecepcionistaFun.h"
 
-
-
-
-
-
-
 void cursoNormalRp(int socketC){
 	
 	int socketA = -1;
 
-	//Para select:
-	char buf1[BUF_SIZE], buf2[BUF_SIZE];
-	char *buffs[] = {buf1, buf2}; 
+	int rdsocks[100];
+	int wrsocks[100];
+	char *buffs[100];
+		
+	rdsocks[0] = wrsocks[1] = socketA; 
+	rdsocks[1] = wrsocks[0] = socketC; 
 	
-	int rdsocks[]= {socketA, socketC, 0, 0, 0}; //Permito engancharme a 3 salidas.
-	int wrsocks[]= {socketC, socketA};
-
 	//Me conecto al bloque A	
 	socketA = sockConectar(LOCALHOST, PUERTO_A); 
 	
@@ -27,9 +21,8 @@ void cursoNormalRp(int socketC){
 	if (socketA > 0) {
 		
 		while(1) {			
-
 			//selectSockets Lee en un socket y escribe en el otro:
-			selectSockets (rdsocks, wrsocks, 0, SEL_TIMEOUT, buffs, 1,,x); 		
+			selectSockets (rdsocks, wrsocks, 0, SEL_TIMEOUT, buffs, rdFun, wrFun); 		
 /* ->Para opcional...
 			while (ret && ret[0]) {
 
@@ -42,8 +35,7 @@ void cursoNormalRp(int socketC){
 				else {
 					write(socketC, "ErrorLxMax", 11);
 				}
-				
-				
+
 				
 			}
 */
@@ -69,7 +61,18 @@ void cursoNormalRp(int socketC){
 }
 
 
+char *rdFun (char *buf) {
 
+
+	return buf;
+}
+
+int wrFun (char *buf);
+
+
+
+}
+/*
 int buscarCantidad(int array[]){
 
 	int ret = 0, i;
@@ -84,3 +87,4 @@ int buscarCantidad(int array[]){
 	
 	return ret;
 }
+*/
