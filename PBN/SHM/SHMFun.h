@@ -10,7 +10,7 @@ typedef struct proceso {
     pid_t pid;
     char *data;   //Largo maximo del nombre es 255 en Unix (dir + parametros!!)
     int estado;   // Ej. ejecutar
-    char *creador;
+    int sockCreador;
 } Proceso;
 
 //Macros
@@ -19,7 +19,7 @@ typedef struct proceso {
 
 #define SHM_FAIL -1
 #define SHM_ID 1234
-#define SHM_SIZE 2048
+#define SHM_SIZE 20000 //20kB para ocupar 100 procesos (de 267 bytes cada uno) y tener ademas bytes libres
 
 //Firmas
 int desconectarSHM(void *shmp);
