@@ -7,13 +7,19 @@ int main(){
 
     Proceso listPro[100];
     void *shm = crearSHM(DIR_KEY_SHM);
-    shm = listPro;
+	Proceso *lista;
+	lista = (Proceso *)(shm + 50); 
     int id = generarID(DIR_KEY_SHM);
 //	int creacionSist[] = crearProcSis[] (puerto);
     Proceso pro = {1232,"hefwef",5,"ddasdas"};
-    listPro[0] = pro;
+	Proceso pro1 = {1232,"hefwef",6,"ddasdas"};
+
+    	lista[0] = pro;
+	lista[1]=pro1;
+
+	printf("\nPrintf: %d-%d\n",pro2.estado,lista[1].estado);
     eliminarSHM(id);
-    desconectarSHM(shm);
+    desconectarSHM((void *)shm);
     
 	
 	//Codigo para suspenderse	
