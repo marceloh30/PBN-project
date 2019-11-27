@@ -26,7 +26,7 @@ void *crearSHM(char *path){
     if( (key = ftok(path,SHM_ID)) == -1 ){
         perror("Error al generar key: ");
     }else {
-    	if( (id = shmget(key, SHM_SIZE, IPC_CREAT | IPC_EXCL)) == -1 ){
+    	if( (id = shmget(key, SHM_SIZE, 0666 | IPC_CREAT | IPC_EXCL) ) == -1 ){
             perror("Error al generar la ID: ");
             if( errno == EEXIST ) eliminarSHM(id);
     	} else {
