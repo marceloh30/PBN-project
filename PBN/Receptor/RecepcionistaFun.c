@@ -22,7 +22,7 @@ void cursoNormalRp(int socketC){
 		
 		while(1) {			
 			//selectSockets Lee en un socket y escribe en el otro:
-			selectSockets (rdsocks, wrsocks, 0, SEL_TIMEOUT, buffs, rdFun, wrFun); 		
+			selectSockets (rdsocks, wrsocks, 0, SEL_TIMEOUT, buffs, rdFun,(void *) NULL, wrFun); 		
 /* ->Para opcional...
 			while (ret && ret[0]) {
 
@@ -70,7 +70,7 @@ char *rdFun (char *buf) {
 int wrFun (char *buf);
 
 
-
+	return 0;
 }
 /*
 int buscarCantidad(int array[]){
