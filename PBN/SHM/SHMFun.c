@@ -44,7 +44,7 @@ void *conectarSHM(char *path) {
     void *shmp = NULL;
     
     if( (id = generarID(path)) != -1 ) {
-        if( (shmp = shmat(id, NULL, 0)) == (void *)-1) perror("Error al conectarce a la SHM: ");
+        if( (shmp = shmat(id, NULL, 0)) == (void *)-1) perror("Error al conectarse a la SHM: ");
     }
         
     return shmp;
@@ -61,7 +61,7 @@ int eliminarSHM(int id) {
 int desconectarSHM(void *shmp) {
     int ret = -1;
     
-    if( (ret = shmdt(shmp)) == -1 ) perror("\nError al desconectarce de SHM: ");
+    if( (ret = shmdt(shmp)) == -1 ) perror("\nError al desconectarse de SHM: ");
     
     return ret;
 }
@@ -85,7 +85,7 @@ Proceso crearEstructura(char *proArray) {
     unProceso.pid = atoi(strtok(proArray,","));
     unProceso.data = strtok(NULL,",");
     unProceso.estado = atoi(strtok(NULL,","));
-    unProceso.creador = strtok(NULL,",");
+    unProceso.sockCreador = strtok(NULL,",");
     
     return unProceso;
 }
@@ -93,7 +93,7 @@ Proceso crearEstructura(char *proArray) {
 char *crearArray(Proceso unProceso) {
     char *retorno = NULL;
     
-    sprintf(retorno,"%d,%s,%d,%s",unProceso.pid,unProceso.data,unProceso.estado,unProceso.creador);
+    sprintf(retorno,"%d,%s,%d,%s",unProceso.pid,unProceso.data,unProceso.estado,unProceso.sockCreador);
 
     return retorno;
 }
