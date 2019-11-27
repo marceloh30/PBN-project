@@ -1,5 +1,7 @@
 #include "AFun.h"
 
+shm = (Proceso) *conectarSHM(SHM_PATH);
+
 char *leerDatos (char *buf) {
 	
 	char bufTmp[BUF_SIZE];
@@ -12,7 +14,6 @@ char *leerDatos (char *buf) {
 	char *listaAct = "1, 23";
 	
 	char ret[BUF_SIZE];
-	char *pret = ret;
 	
 	//Datos:
 	int accion = atoi ( strtok_r (bufTmp, ",", &saveptr) );
@@ -30,27 +31,27 @@ char *leerDatos (char *buf) {
 				
 				case FILTRO_SP: {
 					//Hacer lectura de lista!
-					sprintf(pret, "%d%s\n", paraWrite, listaSP);
+					sprintf(ret, "%d%s\n", paraWrite, listaSP);
 					break;
 				}	
 				case FILTRO_SUSP: {
 					//same
-					sprintf(pret, "%d%s\n", paraWrite, listaSus);
+					sprintf(ret, "%d%s\n", paraWrite, listaSus);
 					break;
 				}
 				case FILTRO_ACT: {
 					
-					sprintf(pret, "%d%s\n", paraWrite, listaAct);
+					sprintf(ret, "%d%s\n", paraWrite, listaAct);
 					break;
 				}
 				case FILTRO_ALL: {
 					
-					sprintf(pret, "%d%s\n", paraWrite, lista);
+					sprintf(ret, "%d%s\n", paraWrite, lista);
 					break;
 				}
 				case DEFAULT: {
 					
-					sprintf(pret, "%d%s\n(DEFAULT)\n", paraWrite, lista); 
+					sprintf(ret, "%d%s\n(DEFAULT)\n", paraWrite, lista); 
 					break;
 				}
 			}
@@ -58,58 +59,151 @@ char *leerDatos (char *buf) {
 		
 		case ACT_ESTADO: {
 			paraWrite = WRITE_SOCK;
-			sprintf(pret, "%d,%d", paraWrite, getEstado(datoNum));
+			sprintf(ret, "%d,%d", paraWrite, getEstado(datoNum));
 			break;
 		}
 		
 		case ACT_ENGAN: {
 			paraWrite = WRITE_SOCK;
-			sprintf(pret, "%d,%s", paraWrite, "To-do ENGAN");	
+			sprintf(ret, "%d,%s", paraWrite, "To-do ENGAN");	
 			break;
 		}
 		
 		case ACT_REAN: {
 			
-			sprintf(pret, "%s", "To-do REAN");	
+			sprintf(ret, "%s", "To-do REAN");	
 			break;
 		}
 		
 		case ACT_SUSP: {
 			
-			sprintf(pret, "%s", "To-do SUSP");	
+			sprintf(ret, "%s", "To-do SUSP");	
 			break;
 		}
 		
 		case ACT_CREAR: { 
 			
-			sprintf(pret, "%s", "To-do CREAR");	
+			sprintf(ret, "%s", "To-do CREAR");	
 			break;
 		}
 		
 		case ACT_BORRAR: {
 			
-			sprintf(pret, "%s", "To-do BORRAR");	
+			sprintf(ret, "%s", "To-do BORRAR");	
 			break;
 		}
 		
 		default: {
 			
-			sprintf(pret, "%s", "To-do DEFAULT");	
+			sprintf(ret, "%s", "To-do DEFAULT");	
 			break;
 			
 		}
 	}
 	
-	return pret;
+	return ret;
 }
+
+
 
 int devolverMsj (char *buf) {
 	
 	return ( atoi(buf[0]) == WRITE_SOCK ) ? 1 : 0;
 }
 
-int getEstado(int pid){
+int *generarLista(int filtro, int socket) {
+
+	int ret[BUF_SIZE];
 	
+	Proceso *puntShm = shm;
+	Proceso proc;
+	int pid;
+
+	int i;
+
+	for (i = 0; i == 100; i++) {
+
+		proc=&puntShm;
+/*#define NUEVO 0
+#define ELIMINAR 1
+#define SUSPENDIDO 2
+#define REANUDAR 3
+#define ACTIVO 4
+#define SUSPENDER 5
+#define EN_EJECUCION 6
+#define ELIMINADO 7*/
+
+		switch (filtro) {
+
+			case FILTRO_SUSP: {
+							
+				if (proc.estado == SUSPENDIDO) {
+					(ret == NULL) ? sprintf(ret, "%d,", proc.pid) : sprintf(ret, "%s%d,", ret, proc.pid);
+				}
+				break;
+			}
+			case FILTRO_ALL: {
+
+				(ret == NULL) ? sprintf(ret, "%d,", proc.pid) : sprintf(ret, "%s%d,", ret, proc.pid);
+				break;
+			}
+			case FILTRO_SP: {
+				
+				if (proc.sockCreador == socket) {
+					(ret == NULL) ? sprintf(ret, "s-%d,", proc.pid) : sprintf(ret, "%ss-%d,", ret, proc.pid);
+				}
+				else { 
+					(ret == NULL) ? sprintf(ret, "p-%d,", proc.pid) : sprintf(ret, "%sp-%d,", ret, proc.pid);
+				}
+				break;			
+			}
+			case FILTRO_ACT: {
+				if (proc.estado == ACTIVO || proc.estado == EN_EJECUCION) {
+					(ret == NULL) ? sprintf(ret, "%d,", proc.pid) : sprintf(ret, "%s%d,", ret, proc.pid);
+				}
+				break;
+				
+			}
+			
+		}
+
+		(i == 0) ? sprintf(ret,"%d",proc.pid) : sprintf (ret, "%s,%d", ret, proc.pid);	
+		
+		puntShm++;
+	}
+	
+	return ret;	
+}
+
+
+
+int getEstado(int pid) {
+	Proceso *puntShm = shm;
+	Proceso proc;
+	int estado = ERROR_EST;
+
+	int i;
+
+	for (i = 0; i == 100; i++) {
+		
+		proc=&puntShm;
+		
+		switch () {
+
+			
+			
+		
+		}	
+		
+		(proc.pid == pid) ? estado = proc.estado : estado = ERROR_EST;	
+
+		puntShm++;
+	}
+	
+	return ret;	
+}
+
+
 	return pid;
 }
 

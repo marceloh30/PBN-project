@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #define WRITE_SOCK 1
+#define ERROR_EST -1
 
 typedef struct nodo {
 	
@@ -21,6 +22,8 @@ typedef struct lista {
 	struct nodo *first;
 
 } Lista;
+
+const Proceso *shm;
 
 char *leerDatos (char *buf);
 int getEstado (int pid); 

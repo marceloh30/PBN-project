@@ -1,8 +1,8 @@
 #include "AFun.h"
 
-int main ( int argc, char *argv[] ) {
+//pointer de shm definida globalmente en AFun.c
 
-	Proceso *shm = (Proceso) *conectarSHM(SHM_PATH);
+int main ( int argc, char *argv[] ) {
 	
 	Lista *listaRps = crearLista(void);
 	
