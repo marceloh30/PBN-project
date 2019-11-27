@@ -92,7 +92,7 @@ Proceso crearEstructura(char *proArray) {
     unProceso.pid = atoi(strtok(proArray,","));
     unProceso.data = strtok(NULL,",");
     unProceso.estado = atoi(strtok(NULL,","));
-    unProceso.creador = strtok(NULL,",");
+    unProceso.sockCreador = strtok(NULL,",");
     
     return unProceso;
 }
@@ -100,7 +100,7 @@ Proceso crearEstructura(char *proArray) {
 char *crearArray(Proceso unProceso) {
     char *retorno = NULL;
     
-    sprintf(retorno,"%d,%s,%d,%s",unProceso.pid,unProceso.data,unProceso.estado,unProceso.creador);
+    sprintf(retorno,"%d,%s,%d,%s",unProceso.pid,unProceso.data,unProceso.estado,unProceso.sockCreador);
 
     return retorno;
 }
