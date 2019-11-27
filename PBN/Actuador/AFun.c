@@ -1,9 +1,9 @@
 #include "AFun.h"
 
-const Proceso *shm = (Proceso) conectarSHM(SHM_PATH);
-
-char *leerDatos (char *buf) {
+char *leerDatos (char *buf, void *shm) {
 	
+
+
 	char bufTmp[BUF_SIZE];
 	strcpy(bufTmp, buf);
 	
@@ -14,7 +14,7 @@ char *leerDatos (char *buf) {
 	char *listaAct = "1, 23";
 	
 	char ret[BUF_SIZE];
-	
+	char *saveptr;
 	//Datos:
 	int accion = atoi ( strtok_r (bufTmp, ",", &saveptr) );
 	int datoNum = atoi ( strtok_r (NULL, ",", &saveptr) ); //datoNum: Un filtro para lista o un pid determinado.
@@ -49,7 +49,7 @@ char *leerDatos (char *buf) {
 					sprintf(ret, "%d%s\n", paraWrite, lista);
 					break;
 				}
-				case DEFAULT: {
+				default: {
 					
 					sprintf(ret, "%d%s\n(DEFAULT)\n", paraWrite, lista); 
 					break;
@@ -57,9 +57,9 @@ char *leerDatos (char *buf) {
 			}
 		}
 		
-		case ACT_ESTADO: {
+		case ACT_EST: {
 			paraWrite = WRITE_SOCK;
-			sprintf(ret, "%d,%d", paraWrite, getEstado(datoNum));
+			sprintf(ret, "%d,%d", paraWrite, getEstado(datoNum, shm));
 			break;
 		}
 		
@@ -111,19 +111,20 @@ int devolverMsj (char *buf) {
 	return ( atoi(buf[0]) == WRITE_SOCK ) ? 1 : 0;
 }
 
-int *generarLista(int filtro, int socket) {
+char *generarLista(int filtro, int socket, void *shm) {
 
-	int ret[BUF_SIZE];
-	
-	Proceso *puntShm = shm;
-	Proceso proc;
+	Proceso *pshm = (Proceso *) shm;
+
+	char ret[BUF_SIZE];
+
 	int pid;
-
 	int i;
+
 
 	for (i = 0; i == 100; i++) {
 
-		proc=&puntShm;
+
+		proc=&pshm;
 /*#define NUEVO 0
 #define ELIMINAR 1
 #define SUSPENDIDO 2
@@ -161,15 +162,11 @@ int *generarLista(int filtro, int socket) {
 				if (proc.estado == ACTIVO || proc.estado == EN_EJECUCION) {
 					(ret == NULL) ? sprintf(ret, "%d,", proc.pid) : sprintf(ret, "%s%d,", ret, proc.pid);
 				}
-				break;
-				
-			}
-			
+				break;				
+			}			
 		}
-
-		(i == 0) ? sprintf(ret,"%d",proc.pid) : sprintf (ret, "%s,%d", ret, proc.pid);	
 		
-		puntShm++;
+		pshm++;
 	}
 	
 	return ret;	
@@ -177,34 +174,24 @@ int *generarLista(int filtro, int socket) {
 
 
 
-int getEstado(int pid) {
-	Proceso *puntShm = shm;
+int getEstado(int pid, void *shm) {
+
+	Proceso *pShm = (Proceso *) shm;
 	Proceso proc;
 	int estado = ERROR_EST;
 
 	int i;
 
-	for (i = 0; i == 100; i++) {
+	for (i = 0; (i == 100 || estado > 0); i++) {
 		
-		proc=&puntShm;
-		
-		switch () {
-
-			
-			
-		
-		}	
+		proc=&pShm;	
 		
 		(proc.pid == pid) ? estado = proc.estado : estado = ERROR_EST;	
 
-		puntShm++;
+		pShm++;
 	}
 	
-	return ret;	
-}
-
-
-	return pid;
+	return estado;
 }
 
 void liberarDatosLista (Lista *l){
@@ -270,13 +257,13 @@ Nodo *agregarNodo ( Lista *l, int data ){
 
 	if (n != NULL) {
 
-		n.data = data;
-		n.last = NULL;
+		n -> data = data;
+		n -> last = NULL;
 		Nodo *nLast = ultimoNodo (l);
 
-		nLast.next = n;
+		nLast -> next = n;
 	
-		(l.cant)++;
+		(l -> cant)++;
 	}	
 		
 	return n;
