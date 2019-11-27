@@ -23,14 +23,13 @@ typedef struct lista {
 
 } Lista;
 
-const Proceso *shm;
 
 char *leerDatos (char *buf);
 int getEstado (int pid); 
 int devolverMsj (char *buf);
 
 Lista *crearLista (void);
-Nodo *AgregarNodoPpio ( ista *l, int data);
+Nodo *AgregarNodoPpio ( Lista *l, int data);
 Nodo *ultimoNodo (Lista *l);
 Nodo *agregarNodo (Lista *l, int data);
 void liberarDatosLista (Lista *l);

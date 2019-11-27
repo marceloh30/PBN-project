@@ -92,7 +92,7 @@ int seleccionProceso (int filtro, int socket) {
 	
 	if (lectura[0] != MSJ_ERROR) {
 		
-		char *lista = devolverLista( lectura ); 
+		char *lista = devolverLista( lectura, filtro ); 
 
 		pidSeleccionado = ERROR_PID;
 		
@@ -133,6 +133,19 @@ char *devolverLista (char *datos, int filtro) {
 	
 	switch (filtro) {
 
+		case FILTRO_ALL | FILTRO_SUSP | FILTRO_ACT: {
+
+			sprintf(ret, "\nLista de PIDs:\n");
+
+			while  ( NULL != (res = ( strtok_r((verif ? NULL : dataTmp ),",",&saveptr1) ) ) )   {
+				verif = 1;
+				
+				num = atoi(res);
+				sprintf(ret, "%s-[%d]\n", ret, num);
+			}	
+			break;
+		}
+
 		case FILTRO_SP: { 
 
 			char *chr, *saveptr2;
@@ -157,26 +170,20 @@ char *devolverLista (char *datos, int filtro) {
 
 			}
 			sprintf(ret, "%s\n", ret);
-			
+			break;
 		}
 	
-		case FILTRO_ALL || FILTRO_SUSP || FILTRO_ACT : {
 
-			sprintf(ret, "\nLista de PIDs:\n");
-
-			while  ( NULL != (res = ( strtok_r((verif ? NULL : dataTmp ),",",&saveptr1) ) ) )   {
-				verif = 1;
-				
-				num = atoi(res);
-				sprintf(ret, "%s-[%d]\n", ret, num);
-			}	
-		}
 		
-		case default: perror("Error de filtro");
+		default: {
 
+			perror("Error de filtro");
+			break;
+		}
 	}
 	
-	return ret;
+	char *retorno = ret;
+	return retorno;
 
 }
 ////

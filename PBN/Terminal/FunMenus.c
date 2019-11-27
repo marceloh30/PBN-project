@@ -28,7 +28,7 @@ void menuPrincipal( int socket ) {
 			}
 			case 4: {
 
-				devolverLista ( enviarAccion ( ACT_LISTA, FILTRO_SP , "" , socket) );
+				devolverLista ( enviarAccion ( ACT_LISTA, FILTRO_SP , "" , socket), FILTRO_SP );
 				break;
 			}
 			case 5: {
@@ -81,7 +81,7 @@ void menuInicial(void){
 				
 				if( scanf("%d.%d.%d.%d:%d", &ip[0] ,&ip[1] ,&ip[2] ,&ip[3] ,&ip[4]) != 5 ){ //Puedo usar strtok para separar (ver foto) y verificar mejor
 					
-					ingrCorrecto = 0;															
+					ingrCorrecto = 0;
 					printf("No te olvides de ingresar correctamente el formato!!\n\n");
 				}
 

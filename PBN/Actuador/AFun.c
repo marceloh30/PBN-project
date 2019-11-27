@@ -1,6 +1,6 @@
 #include "AFun.h"
 
-shm = (Proceso) *conectarSHM(SHM_PATH);
+const Proceso *shm = (Proceso) conectarSHM(SHM_PATH);
 
 char *leerDatos (char *buf) {
 	

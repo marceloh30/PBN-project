@@ -15,6 +15,6 @@ int opcion(int valorInf, int valorSup); 		//Devuelve num. entre valores esperado
 int opcionPID(int *pids);				//Devuelve pid entre pids esperados
 int *getPIDS(char *datos);
 int seleccionProceso (int filtro, int socket);		//Devuelve PID si es ingreso correcto. 
-char *devolverLista(char *datos);			//Recibe datos de una lista y genera y devuelve otra amigable al usuario
+char *devolverLista(char *datos, int filtro);			//Recibe datos de una lista y genera y devuelve otra amigable al usuario
 
 #endif
