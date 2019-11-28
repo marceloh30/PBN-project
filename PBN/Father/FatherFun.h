@@ -10,11 +10,13 @@
 #define DIR_PM "../ProcessManager/PM"
 #define DIR_L "../Listener/L"
 #define DIR_A "../Actuador/A"
-#define DIR_KEY_SHM "../SHM/keyGeneratorSHM"
+#define TIME 3
 
 //Firmas
-int *crearProcSis ( int puerto );
+int *crearProcSis(int puerto);
 
 void eliminarSistema(int *pid, int id, void *shm);
+
+void signal_handler(int signal);
 
 #endif
