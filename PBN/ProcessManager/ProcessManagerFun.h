@@ -22,6 +22,6 @@ int accionATomar(Proceso *direc, sem_t *sem);
 
 int ejecutar(pid_t pid);
 
-void eliminarProcesos(Proceso *lista);
+void eliminarProcesos(Proceso *lista, sem_t *sem);
 
 #endif

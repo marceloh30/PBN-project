@@ -119,12 +119,19 @@ int accionATomar(Proceso *direc, sem_t *sem){
     return ret;
 }
 
-void eliminarProcesos(Proceso *lista){
-//    Proceso unPro;
-    //kill(0,SIGKILL);
-//    for( int i = 0; i < 100; i++ ){
-//        if( lugarVacio(lista + i) != 1){
-//            kill(unPro.pid, SIGKILL);
-//        }
-//    }
+void eliminarProcesos(Proceso *lista, sem_t *sem){
+    Proceso unPro = tomarProcSHM(*lista, sem);
+    struct timespec time = {0, 5000};
+    int *arg;
+    
+    for( int i = 0; i < 100; i++ ){
+        if( getUbicaionLibre(lista + i) != NULL){
+            kill(unPro.pid, SIGTERM);
+            //Si el proceso termina antes de que termine el tiempo, no manda SIGKILL
+            if( nanosleep(&time) != -1) { //Se agoto el tiempo
+                kill(unPro.pid, kill):
+                wait(arg);
+            }
+        }
+    }
 }

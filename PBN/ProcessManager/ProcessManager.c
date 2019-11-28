@@ -8,7 +8,6 @@ int main( int arg, char *datos[]) {
     Proceso unProc;
     int aux;
     char *enviar;
-    int i = 0;
     int ret;
     
     //-----//Captura la señal para eliminarce
@@ -25,6 +24,7 @@ int main( int arg, char *datos[]) {
     
     if( (shm = conectarSHM(DIR_KEY_SHM)) != (void *)(-1) ){
         sem_t *sem = (sem_t *)(shm + SEM_OFFSET);
+        int i = 0;
         
         while( salir == 0 ){
             aux = accionATomar(shm + PROC_OFFSET + i, sem);
@@ -45,10 +45,12 @@ int main( int arg, char *datos[]) {
             }    //Reinicia el contador
             
         }
+        
         ret = EXIT_SUCCESS;
+        eliminarProcesos(shm + PROC_OFFSET, sem);
+        desconectarSHM(shm);
     } else {
         ret = EXIT_FAILURE;
-        desconectarSHM(shm);
     }
     
     return ret;
