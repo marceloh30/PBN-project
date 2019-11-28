@@ -42,10 +42,16 @@ int accionATomar(Proceso *direc, sem_t *sem){
     switch (proc.estado) {
 
         case NUEVO:
+            char *path = strtok(proc.data, " ");
+            char *agr[] = NULL;
+            int i = 0;
+            
+            while( arg[i] != NULL){
+                arg[i] = strtok(NULL, " ");
+                i++;
+            }
 
-            //Crea el proceso y guarda el pid
-
-            if ( (pid = ejecProceso( proc.data , NULL) ) != -1 ){
+            if ( (pid = ejecProceso( path , arg) ) != -1 ){
                 
                 if( suspenderProceso(pid) != -1 ){
 
