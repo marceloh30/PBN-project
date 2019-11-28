@@ -18,6 +18,7 @@ int main( int argc, char *argv[]){
     if( (shm = crearSHM(DIR_KEY_SHM)) != (void *)-1 ){
         sem_t *sem = crearSemaforo(shm);
         puerto = atoi(argv[1]);
+        cargarListaVacia((Proceso *)(proc + PROC_OFFSET), sem)
         creacionSis = crearProcSis(puerto);
         if( creacionSis[0] == EXIT_SUCCESS){
             id = generarID(DIR_KEY_SHM);
