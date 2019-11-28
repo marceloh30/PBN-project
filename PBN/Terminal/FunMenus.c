@@ -1,63 +1,6 @@
 #include "FunMenus.h" 
 
-//Menu principal:
-
-void menuPrincipal( int socket ) {
-	int opc = -1;
-	while ( opc != 6 && opc != 7 ) {
-	
-		printf(STR_MP);
-
-		opc = opcion(1,7);
-		
-		//selectSockets ( stdin, socket, int myexceptfd, long t_out, char *buff[], char *(*actRd)(char *, void *), void *shm, int (*actWr)(char *))
-
-		switch	( opc ) {
-
-			case 1: {
-				Submenu1( socket );
-				break;
-			}
-			case 2: {
-				Submenu2( socket );
-				break;
-			}
-			case 3: {
-
-				int procesoElegido = seleccionProceso(FILTRO_ALL, socket);
-				enviarAccion ( ACT_EST, procesoElegido, "" , socket);			
-				break;
-			}
-			case 4: {
-
-				devolverLista ( enviarAccion ( ACT_LISTA, FILTRO_SP , "" , socket), FILTRO_SP );
-				break;
-			}
-			case 5: {
-
-				seleccionProceso(FILTRO_ALL, socket);				
-				break;
-
-			}
-			case 6: {
-				close(socket); //Cierro mi conexion con el socket.
-				break;
-			}
-			case 7: {
-				enviarAccion ( ACT_CERRAR_SIST, 0 , "" , socket);
-				close(socket);
-				break;
-			}
-			default: printf("\nError de ingreso:\nElija una opcion entre 1 y 7\n");
-		
-		}
-	}
-
-}
-////
-
 //Menu inicial:
-
 void menuInicial(void){
 
 	int socket;
@@ -129,30 +72,100 @@ void menuInicial(void){
 }
 ////
 
+//Menu principal:
+char *rd(char *buf, void *ptr){
+
+	return buf;
+}
+
+int actWr(char * buf){
+
+	return 0;
+}
+
+void menuPrincipal( int socket ) {
+	char buffer[BUF_SIZE];
+
+	int opc = -1;
+	while ( opc != 6 && opc != 7 ) {
+	
+		printf(STR_MP);
+
+		//Realizo select para evitar perder mensajes del sistema
+		selectSockets ( stdin, socket, int myexceptfd, SEL_TIMEOUT, buffer, rd, NULL, actWr);
+		opc = opcion(1,7, buffer);
+
+		switch	( opc ) {
+
+			case 1: {
+				Submenu1( socket );
+				break;
+			}
+			case 2: {
+				Submenu2( socket );
+				break;
+			}
+			case 3: {
+
+				int procesoElegido = seleccionProceso(FILTRO_ALL, socket);
+				enviarAccion ( ACT_EST, procesoElegido, "" , socket);			
+				break;
+			}
+			case 4: {
+
+				devolverLista ( enviarAccion ( ACT_LISTA, FILTRO_SP , "" , socket), FILTRO_SP );
+				break;
+			}
+			case 5: {
+
+				seleccionProceso(FILTRO_ALL, socket);				
+				break;
+
+			}
+			case 6: {
+				close(socket); //Cierro mi conexion con el socket.
+				break;
+			}
+			case 7: {
+				enviarAccion ( ACT_CERRAR_SIST, 0 , "" , socket);
+				close(socket);
+				break;
+			}
+			default: printf("\nError de ingreso:\nElija una opcion entre 1 y 7\n");
+		
+		}
+	}
+
+}
+////
+
 //Submenu1:
 
-void Submenu1( int socket ){
-	
+void Submenu1( int socket ) {
+	char buffer[BUF_SIZE];
+
 	printf(STR_SM1);
 	int opc=-1;
-	while(opc != 3){		
-	
-		opc = opcion(1,3);
+	while(opc != 3) {
 		
-		switch(opc){
-			case 1:{
+		//Realizo select para evitar perder mensajes del sistema
+		selectSockets ( stdin, socket, int myexceptfd, SEL_TIMEOUT, buffer, rd, NULL, actWr);
+		opc = opcion(1,3, buffer);	
+		
+		switch(opc) {
+			case 1: {
 				
-				//crearProceso();
-				
-				break;
-			}
-			case 2:{
-				
-				//borrarProceso();
+				enviarAccion ( ACT_CREAR, 0 , "" , socket);
 				
 				break;
 			}
-			case 3:{
+			case 2: {
+
+				int pid = seleccionProceso(FILTRO_ALL, socket);					
+				enviarAccion ( ACT_BORRAR, pid, "" , socket);			
+				break;
+			}
+			case 3: {
 				break; //Volver al MP
 			}
 			default: printf("\nError de ingreso.\nElija una opcion entre 1 y 3\n");
@@ -166,25 +179,30 @@ void Submenu1( int socket ){
 //Submenu2:
 
 void Submenu2( int socket ){
-	
+	char buffer[BUF_SIZE];
+
 	printf(STR_SM2);
 	int opc=-1;
-	while(opc != 3){		
+	while(opc != 3) {		
 	
-		opc = opcion(1,3);
+		//Realizo select para evitar perder mensajes del sistema
+		selectSockets ( stdin, socket, int myexceptfd, SEL_TIMEOUT, buffer, rd, NULL, actWr);
+		opc = opcion(1,3, buffer);
 		
-		switch(opc){
-			case 1:{
+		switch(opc) {
+			case 1: {
 				
-				//suspenderProceso();				
+				int pid = seleccionProceso(FILTRO_ACT, socket);					
+				enviarAccion ( ACT_SUSP, pid, "" , socket);			
 				break;
 			}
-			case 2:{
+			case 2: {
 				
-				//reanudarProceso();				
+				int pid = seleccionProceso(FILTRO_SUSP, socket);					
+				enviarAccion ( ACT_REAN, pid, "" , socket);			
 				break;
 			}
-			case 3:{
+			case 3: {
 				break; //Volver al MP
 			}
 			default: printf("\nError de ingreso:\nElija una opcion entre 1 y 3\n");

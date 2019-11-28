@@ -1,14 +1,14 @@
 #include "ConsolaFun.h"
 
 //Eleccion de Opcion
-int opcion(int valorInf, int valorSup){
+int opcion(int valorInf, int valorSup, char *buffer) {
 	int ingreso;
 
 	printf("\nIngrese opcion: ");
 
-	while( ! ( scanf("%d",&ingreso) && ingreso >= valorInf && ingreso <= valorSup ) ) {
-
-		scanf("%*[^\n]"); //Limpio buffer
+	while( ! ( sscanf(buffer, "%d", &ingreso) && ingreso >= valorInf && ingreso <= valorSup ) ) {
+		
+		sscanf(buffer, "%*[^\n]"); //Limpio buffer
 		printf("\nIngreso incorrecto.\nPor favor, ingrese un valor de la lista: ");
 
 	}			
@@ -17,7 +17,7 @@ int opcion(int valorInf, int valorSup){
 ////
 
 //Eleccion de pids de la lista
-int opcionPID (int *pids) {
+int opcionPID (int *pids, int buffer, char *buffer) {
 
 	int ingreso, largoPids, i;
 	int ingresoCorrecto = 0;
@@ -31,9 +31,9 @@ int opcionPID (int *pids) {
 
 	printf("\nIngrese PID: ");
 
-	while( ! ( scanf("%d", &ingreso) && !ingresoCorrecto ) ) {
+	while( ! ( sscanf(buffer, "%d", &ingreso) && !ingresoCorrecto ) ) {
 
-		scanf("%*[^\n]"); //Limpio buffer		
+		sscanf(buffer, "%*[^\n]"); //Limpio buffer		
 
 		for(i = 0; i < largoPids; i++) {
 
