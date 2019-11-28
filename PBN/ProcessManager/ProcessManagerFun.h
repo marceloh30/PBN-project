@@ -1,5 +1,5 @@
-#ifndef _PROCESSMANAGER_H
-#define _PROCESSMANAGER_H
+#ifndef _PROCESSMANAGER_H_
+#define _PROCESSMANAGER_H_
 
 #include "../GeneralFunctions.h"
 #include "../SHM/SHMFun.h"
@@ -7,7 +7,6 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <sys/time.h>
-#include <unistd.h>
 
 //Macros:
 #define TIEMPO_SEC 10

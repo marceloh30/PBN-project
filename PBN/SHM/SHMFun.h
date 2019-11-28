@@ -1,5 +1,5 @@
-#ifndef _SHMFUN_H
-#define _SHMFUN_H
+#ifndef _SHMFUN_H_
+#define _SHMFUN_H_
 
 #include "../Semaforo/Semaforo.h"
 #include <stdio.h>

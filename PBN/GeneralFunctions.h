@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/errno.h>
-#include <signal.h>
 
 //Macros
 #define WRITE_SOCK 1

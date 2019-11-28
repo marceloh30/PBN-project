@@ -5,7 +5,6 @@
 #include "../SHM/SHMFun.h"
 #include "../GeneralFunctions.h"
 #include "../DynamicLists.h"
-#include <stdio.h>
 
 #define ERROR_EST -1
 
