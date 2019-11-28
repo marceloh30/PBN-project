@@ -3,7 +3,7 @@
 
 #include "../GeneralFunctions.h"
 #include "../SHM/SHMFun.h"
-#include "../Sockets/SocketsFunc.h"
+#include "../Sockets/SocketFunc.h"
 #include <setjmp.h>
 #include <signal.h>
 #include <sys/time.h>
