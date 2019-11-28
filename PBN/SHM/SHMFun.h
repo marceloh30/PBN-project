@@ -1,3 +1,6 @@
+#ifndef _SHMFUN_H
+#define _SHMFUN_H
+
 #include "../Semaforo/Semaforo.h"
 #include <stdio.h>
 #include <sys/ipc.h>
@@ -42,3 +45,5 @@ Proceso crearEstructura(char *proArray);
 Proceso tomarProcSHM(Proceso *lista, sem_t *sem);
 
 void guardarProcSHM(Proceso proc, Proceso *lista, sem_t *sem);
+
+#endif

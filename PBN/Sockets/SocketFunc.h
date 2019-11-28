@@ -1,5 +1,5 @@
 #ifndef _SOCKETFUNC_H
-#define _SOCKETFUNC_H_
+#define _SOCKETFUNC_H
 
 #include "../GeneralFunctions.h"
 #include <stdio.h>
@@ -13,8 +13,6 @@
 
 //Macros
 #define SOCKET_ERROR -1
-
-
 
 #define MAX_CLIENTS 8 //Maxima cantidad de clientes en el sistema
 #define LOCALHOST "127.0.0.1"

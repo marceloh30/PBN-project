@@ -1,7 +1,5 @@
 #include "AFun.h"
 
-
-
 int main ( int argc, char *argv[] ) {
 
 	//Lista dinamica de Rps (los sockets a c/u de ellos)

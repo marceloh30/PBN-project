@@ -1,5 +1,5 @@
-#ifndef _SOCKETFUNC_H
-#define _SOCKETFUNC_H_
+#ifndef _PROCESSMANAGER_H
+#define _PROCESSMANAGER_H
 
 #include "../GeneralFunctions.h"
 #include "../SHM/SHMFun.h"
