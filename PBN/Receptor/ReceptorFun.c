@@ -24,7 +24,7 @@ int delegarRecepc(char *userData, int sockId){
 		if (pidFork == 0) {
 
 			// Estoy en hijo: Nuevo recepcionista.
-			execl( "./Rp", "./Rp", &rdsockId, NULL);
+			execl( DIRECCION_RP, DIRECCION_RP, &rdsockId, NULL);
 
 		}
 		else {

@@ -1,7 +1,6 @@
 #ifndef _PROCESSMANAGER_H_
 #define _PROCESSMANAGER_H_
 
-#include "../GeneralFunctions.h"
 #include "../SHM/SHMFun.h"
 #include "../Sockets/SocketFunc.h"
 #include <setjmp.h>

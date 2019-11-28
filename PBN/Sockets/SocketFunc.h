@@ -2,9 +2,6 @@
 #define _SOCKETFUNC_H
 
 #include "../GeneralFunctions.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h> //para Sleep
 #include <sys/socket.h>
 #include <netinet/in.h> // dirs de Socket
 #include <arpa/inet.h> 	// 	"		"
