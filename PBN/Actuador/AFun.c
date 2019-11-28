@@ -1,21 +1,19 @@
 #include "AFun.h"
 
 char *leerDatos (char *buf, void *shm) {
-	
 
+	//Obtengo Semaforo para shm:
+	sem_t *sem = (sem_t *) (shm + SEM_OFFSET);
+	//Dejo puntero en el offset donde comienzan los procesos:
+	shm += PROC_OFFSET;
 
 	char bufTmp[BUF_SIZE];
 	strcpy(bufTmp, buf);
 	
-	//Listas de prueba para mandar!
-	char *lista = "1,5,7,23";
-	char *listaSP = "s-1,s-5,p-7,p-23"; //1,5 creados por sesion y 7 y 23 por plan.
-	char *listaSus = "5,7";	//5 y 7 susp.
-	char *listaAct = "1, 23";
-	
 	char ret[BUF_SIZE];
 	char *saveptr;
-	//Datos:
+	
+	//Interpreto mensaje:
 	int accion = atoi ( strtok_r (bufTmp, ",", &saveptr) );
 	int datoNum = atoi ( strtok_r (NULL, ",", &saveptr) ); //datoNum: Un filtro para lista o un pid determinado.
 	char *data = strtok_r (NULL, ",", &saveptr);
@@ -27,123 +25,157 @@ char *leerDatos (char *buf, void *shm) {
 		
 		case ACT_LISTA: {
 			paraWrite = WRITE_SOCK;
-			switch (datoNum) {
-				
-				case FILTRO_SP: {
-					//Hacer lectura de lista!
-					sprintf(ret, "%d%s\n", paraWrite, listaSP);
-					break;
-				}	
-				case FILTRO_SUSP: {
-					//same
-					sprintf(ret, "%d%s\n", paraWrite, listaSus);
-					break;
-				}
-				case FILTRO_ACT: {
-					
-					sprintf(ret, "%d%s\n", paraWrite, listaAct);
-					break;
-				}
-				case FILTRO_ALL: {
-					
-					sprintf(ret, "%d%s\n", paraWrite, lista);
-					break;
-				}
-				default: {
-					
-					sprintf(ret, "%d%s\n(DEFAULT)\n", paraWrite, lista); 
-					break;
-				}
-			}
-		}
-		
-		case ACT_EST: {
-			paraWrite = WRITE_SOCK;
-			sprintf(ret, "%d,%d", paraWrite, getEstado(datoNum, shm));
+			sprintf(ret, "%d,%d,%s", paraWrite, ACT_LISTA, generarLista(datoNum, socket, (Proceso *)shm, sem));
 			break;
 		}
 		
-		case ACT_ENGAN: {
+		case ACT_EST: {
+			
 			paraWrite = WRITE_SOCK;
-			sprintf(ret, "%d,%s", paraWrite, "To-do ENGAN");	
+			sprintf(ret, "%d,%d,%d", paraWrite, ACT_EST, getEstado(datoNum, (Proceso *)shm, sem));
 			break;
 		}
 		
 		case ACT_REAN: {
 			
-			sprintf(ret, "%s", "To-do REAN");	
+			setEstado(datoNum, ACTIVO, (Proceso *)shm, sem);	
+			paraWrite = WRITE_SOCK;
+			sprintf(ret, "%d,%d,%d", paraWrite, ACT_REAN, datoNum);
 			break;
 		}
 		
 		case ACT_SUSP: {
-			
-			sprintf(ret, "%s", "To-do SUSP");	
+
+			//Envio SIGSTOP para suspenderlo
+			kill(datoNum, SIGSTOP);
+			setEstado(datoNum, SUSPENDIDO, (Proceso *)shm, sem);
+
+			paraWrite = WRITE_SOCK;
+			sprintf(ret, "%d,%d,%d", paraWrite, SUSPENDIDO, datoNum);
 			break;
 		}
 		
-		case ACT_CREAR: { 
+		case ACT_CREAR: { 			
+			Proceso *ubicSHM;
+			if ( (ubicSHM = getUbicacionLibre((Proceso *)shm, sem)) != NULL ) {
+				crearProcSHM (datoNum, NUEVO, data, socket, ubicSHM, sem);
+			}
+			else {
+				paraWrite = ERROR_PRC;
+			}
 			
-			sprintf(ret, "%s", "To-do CREAR");	
+			sprintf(ret, "%d,%d", paraWrite, ACT_CREAR);			
 			break;
 		}
 		
 		case ACT_BORRAR: {
 			
-			sprintf(ret, "%s", "To-do BORRAR");	
+			//Envio SIGKILL para terminar el proceso
+			kill(datoNum, SIGKILL);
+			//Luego lo pongo como eliminado para "liberar" 
+			//el espacio asignado para ese proc.
+			setEstado(datoNum, ELIMINADO, (Proceso *)shm, sem);
+
+			paraWrite = WRITE_SOCK;
+			sprintf(ret, "%d,%d,%d", paraWrite, ELIMINADO, datoNum);					
 			break;
 		}
 		
+		case ACT_ENGAN: {
+			
+			//paraWrite = WRITE_SOCK;
+			sprintf(ret, "%d,%d", paraWrite, ACT_ENGAN);	
+			break;
+		}
+		
+		case ACT_CERR_SIST: {
+			sprintf(ret, "%d,%d", paraWrite, ACT_CERR_SIST);
+			kill(getppid(),SIGTERM); //Envio SIGTERM al father
+			break;
+		}		
+			
 		default: {
 			
-			sprintf(ret, "%s", "To-do DEFAULT");	
+			sprintf(ret, "%d", ERROR_ACT);	
 			break;
 			
 		}
 	}
-	
-	return ret;
+	//Devuelvo puntero a datos locales para evitar warnings.
+	char *pret = ret;
+	return pret;
 }
 
 
-
-int devolverMsj (char *buf) {
+//getUbicacionLibre(): Busco si hay ubicacion libre en shm y si hay devuelvo.
+Proceso *getUbicacionLibre (Proceso *shm, sem_t *sem) {
 	
-	return ( atoi(buf[0]) == WRITE_SOCK ) ? 1 : 0;
+	int i, lugarLibre = 0;
+	Proceso proc;
+	
+	for (i = 0; (i == CANT_PROC || lugarLibre) ; i++) {
+		
+		proc = tomarProcSHM(shm, sem);
+		
+		if ( (proc.data == NULL) || (proc.estado == ELIMINADO) ) {
+			lugarLibre = 1;
+		}
+		else {
+			shm++;
+			i++;
+		}
+	}
+	
+	if ( lugarLibre == 0 ) {
+		shm = NULL;
+	}
+	
+	return shm;
 }
 
-char *generarLista(int filtro, int socket, void *shm) {
+void crearProcSHM (int pid, int estado, char *data, int socket, Proceso *ubicacionLibre, sem_t *sem){
 
-	Proceso *pshm = (Proceso *) shm;
+	//Genero mensaje para enviar a crearEstructura():
+	char* datos = NULL;
+	sprintf(datos, "%d,%d,%s,%d", pid, estado, data, socket);
+	
+	//Creo estuctura y la guardo en ubicacionLibre
+	Proceso proc = crearEstructura(datos);
 
+	//guardo proceso en ubicacion indicada de SHM
+	guardarProcSHM(proc, ubicacionLibre, sem);
+
+}
+
+//devolverMsj(): Devuelve 1 si fue seteado WRITE_SOCK en el espacio 0.
+int devolverMsj (char *buf) { 
+	
+	return atoi(buf);
+}
+
+char *generarLista (int filtro, int socket, Proceso *shm, sem_t *sem) {
+
+	//Inicializo variables
+	Proceso proc;
 	char ret[BUF_SIZE];
-
-	int pid;
 	int i;
+	int error = 0;
 
+	//For para recorrer la SHM y observar segun filtro si debo ingresarlo en la lista a devolver
+	for (i = 0; (i == CANT_PROC || !error) ; i++) {
 
-	for (i = 0; i == 100; i++) {
-
-
-		proc=&pshm;
-/*#define NUEVO 0
-#define ELIMINAR 1
-#define SUSPENDIDO 2
-#define REANUDAR 3
-#define ACTIVO 4
-#define SUSPENDER 5
-#define EN_EJECUCION 6
-#define ELIMINADO 7*/
+		proc = tomarProcSHM(shm, sem);
 
 		switch (filtro) {
 
 			case FILTRO_SUSP: {
 							
-				if (proc.estado == SUSPENDIDO) {
+				if (proc.estado == SUSPENDIDO) { 
 					(ret == NULL) ? sprintf(ret, "%d,", proc.pid) : sprintf(ret, "%s%d,", ret, proc.pid);
 				}
 				break;
 			}
-			case FILTRO_ALL: {
+			case FILTRO_ALL | FILTRO_EST: {
 
 				(ret == NULL) ? sprintf(ret, "%d,", proc.pid) : sprintf(ret, "%s%d,", ret, proc.pid);
 				break;
@@ -163,109 +195,68 @@ char *generarLista(int filtro, int socket, void *shm) {
 					(ret == NULL) ? sprintf(ret, "%d,", proc.pid) : sprintf(ret, "%s%d,", ret, proc.pid);
 				}
 				break;				
-			}			
+			}
+			default: {
+				error = 1;
+				sprintf(ret, "Filtro Erroneo.");
+				break;
+			}
 		}
 		
-		pshm++;
+		shm++;
+		i++;
+	}
+	//Devuelvo puntero a datos locales para evitar warnings.
+	char *pret = ret;
+	return pret;	
+}
+
+int setEstado (int pid, int estado, Proceso *shm, sem_t *sem) {
+	
+	//Inicializo variables
+	
+	Proceso proc;	
+	int ret = 0; //Inicializo en "false" y si puedo setear estado devuelvo 1
+	int i;
+	
+	//For para recorrer shm y encontrar el pid del proceso para asignarle estado:
+	
+	for (i = 0; (i == CANT_PROC || (proc.estado == estado) ); i++) {
+		
+		proc = tomarProcSHM(shm, sem);	
+		
+		if (proc.pid == pid) {	
+		
+			proc.estado = estado;
+			ret = 1;
+		}
+		else {
+			
+			shm++;
+			i++;
+		}
 	}
 	
 	return ret;	
 }
 
-
-
-int getEstado(int pid, void *shm) {
-
-	Proceso *pShm = (Proceso *) shm;
+int getEstado (int pid, Proceso *shm, sem_t *sem) {
+	
 	Proceso proc;
+	
 	int estado = ERROR_EST;
 
 	int i;
 
-	for (i = 0; (i == 100 || estado > 0); i++) {
+	for (i = 0; (i == CANT_PROC || (estado != ERROR_EST) ); i++) {
 		
-		proc=&pShm;	
+		proc = tomarProcSHM(shm, sem);
 		
-		(proc.pid == pid) ? estado = proc.estado : estado = ERROR_EST;	
+		(proc.pid == pid) ? (estado = proc.estado) : (estado = ERROR_EST);	
 
-		pShm++;
+		shm++;
+		i++;
 	}
 	
 	return estado;
 }
-
-void liberarDatosLista (Lista *l){
-		
-	Nodo *n = l -> first;
-	
-	while( n && n -> next) {
-		
-		free((void) n);
-		n = n -> next;	
-	}
-
-	free( (void) (l -> first) );
-	free( (void) (l) );
-	
-}
-
-Lista *crearLista ( void ){
-
-	Lista *l = (Lista *) malloc (sizeof(Lista));
-
-	if (l != NULL) {
-
-		l -> first = NULL;
-		l -> cant = 0;
-	}	
-	
-	return l;
-}
-
-Nodo *AgregarNodoPpio ( Lista *l, int data ){
-	
-	Nodo *n = (Nodo *) malloc (sizeof(Nodo));
-
-	if (n != NULL) {
-
-		n -> data = data;
-		n -> next = l -> first;
-		l -> first = n;
-		(l -> cant)++;
-	}
-
-	return n;
-
-}
-
-
-Nodo *ultimoNodo ( Lista *l ){
-	
-	Nodo *n = l -> first;
-
-	while( n && n -> next) {
-		
-		n = n -> next;	
-	}
-	
-	return n;
-}
-
-Nodo *agregarNodo ( Lista *l, int data ){
-	
-	Nodo *n = (Nodo *) malloc (sizeof(Nodo));
-
-	if (n != NULL) {
-
-		n -> data = data;
-		n -> last = NULL;
-		Nodo *nLast = ultimoNodo (l);
-
-		nLast -> next = n;
-	
-		(l -> cant)++;
-	}	
-		
-	return n;
-}
-

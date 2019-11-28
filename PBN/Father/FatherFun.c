@@ -1,12 +1,14 @@
 #include "FatherFun.h"
 
-int *crearProcSis( int puerto ){ //Devuelvo los pid para el cierre del sistema
+int *crearProcSis( int puerto ) { //Devuelvo los pid para el cierre del sistema
     //Se inicializan los valores para evitar los warnigs
     int ret;
     int pidR = 0;
     int pidL = 0;
     int pidPM = 0;
     int pidA = 0;
+    
+    //Se obtienen los argumentos para ejecutar cada proceso
     char *port = NULL;
     sprintf(port,"%d",puerto);
 	char *argR[] = { DIR_R, port, NULL };
@@ -43,23 +45,46 @@ int *crearProcSis( int puerto ){ //Devuelvo los pid para el cierre del sistema
     }
 	*/
     // Para que funcione correctamente
-	else ret = EXIT_SUCCESS;
-    pidL = -1;  // Para que funcione correctamente
+	else{
+		ret = EXIT_SUCCESS;
+		pros = 4;
+	}
     
     int retorno[]= {ret, pidR, pidL, pidPM, pidA};
     return retorno;
 	
 }
 
-void eliminarSistema(int *pid, int id, void *shm){
+void eliminarSistema(int *pid, int id, void *shm, sem_t sem){
     //SIGTERM le indica a los procesos que se terminen
-    kill(pid[0],SIGTERM);
+
+    struct timespec time = {2, 0};
+    
     kill(pid[1],SIGTERM);
+	nanosleep(time, NULL);
+	if ( pros != 3) kill(pid[0], SIGKILL);
+	
     kill(pid[2],SIGTERM);
-    kill(pid[3],SIGTERM);
-    perror("Error al eliminar el sistema: ");
-    eliminarSHM(id);
+	nanosleep(time, NULL);
+	if ( pros != 2) kill(pid[1], SIGKILL); 	
+	
+	kill(pid[3],SIGTERM);
+	nanosleep(time, NULL);
+	if ( pros != 1) kill(pid[2], SIGKILL);
+    	
+	kill(pid[4],SIGTERM);
+	nanosleep(time, NULL);
+	if ( pros != 0) kill(pid[3], SIGKILL);
+    
     desconectarSHM(shm);
+    eliminarSemaforo(sem);
+	eliminarSHM(id);
+}
+
+void signal_handler(int signal){
+	if( signal == SIGCHLD){
+		pros = pros - 1;
+	}
 }
 
 

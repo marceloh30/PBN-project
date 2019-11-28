@@ -4,34 +4,18 @@
 #include "../Sockets/SocketFunc.h"
 #include "../SHM/SHMFun.h"
 #include "../GeneralFunctions.h"
+#include "../DynamicLists.h"
 #include <stdio.h>
 
-#define WRITE_SOCK 1
 #define ERROR_EST -1
 
-typedef struct nodo {
-	
-	int data;
-	struct nodo *next;
-
-} Nodo;
-
-typedef struct lista {
-
-	int cant;
-	struct nodo *first;
-
-} Lista;
-
-
+//Funciones de lectura y accion en listas/estados/acciones
 char *leerDatos (char *buf, void *shm);
-int getEstado (int pid, void *shm); 
+int setEstado(int pid, int estado, Proceso *shm, sem_t *sem);
+int getEstado (int pid, Proceso *shm, sem_t *sem); 
 int devolverMsj (char *buf);
-
-Lista *crearLista (void);
-Nodo *AgregarNodoPpio ( Lista *l, int data);
-Nodo *ultimoNodo (Lista *l);
-Nodo *agregarNodo (Lista *l, int data);
-void liberarDatosLista (Lista *l);
+char *generarLista(int filtro, int socket, Proceso *shm, sem_t *sem);
+Proceso *getUbicacionLibre(Proceso *shm, sem_t *sem);
+void crearProcSHM (int pid, int estado, char *data, int socket, Proceso *ubicacionLibre, sem_t *sem);
 
 #endif

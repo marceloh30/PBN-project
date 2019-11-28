@@ -18,7 +18,6 @@ int sockEscuchar(uint16_t puerto){
 	}
 	
 	return sockId;	
-	
 }
 
 int configurarSocketL(int sockId, struct sockaddr_in structSock, uint16_t puerto){

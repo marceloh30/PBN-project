@@ -15,14 +15,13 @@ int conectarSist(int *dir, int timeOut){
 	
 	printf("Intento conexion a %s:%d!\n", ip, dir[4]);
 
-	while ( wrsocket ) { 
+	if ( wrsocket ) { 
 		
 		do {
 			wrsocket = sockConectar(ip, dir[4]);
 			tEnd = clock();
-			tiempo = ((unsigned int)(tEnd - tStart)) / (unsigned int)CLOCKS_PER_SEC;
-
-		} while ( (wrsocket < 0) && (tiempo < timeOut) );
+			tiempo = (unsigned int)(tEnd - tStart);
+		} while ( (wrsocket < 0) && (tiempo < 1000000) );
 		
 	}
 
@@ -70,8 +69,4 @@ char *enviarAccion ( int accion, int datoNum, char *datos, int socket ) {
 	return ret;
 }	
 
-
-void cerrarSistema(void){
-	printf("HACER Cerrarsistema()!!\n\n");
-}
 

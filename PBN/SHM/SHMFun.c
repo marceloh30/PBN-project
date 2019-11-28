@@ -1,20 +1,5 @@
 #include "SHMFun.h"
 
-//ftok(const char *pathname,int progid); Sirve para generar el nombre que van a usar los programas para referirce a la SHM
-//lo creo en /tmp
-//Hay que tener creado el archivo cuando se crea memoria compartida, se crea con el sistema
-//shmget(); size => el sistema operativo te redondea a un valor 
-// flags => IPC_CREAT | IPC_EXCL 
-/* shmat() el segundo parametro se pone en NULL, no nos interesa
-shmdt() => desengancha un procesos de la SHM. Lo correcto es desenganchar el proceso antes de que se cierre
-shmctl() sirve para marcar la memoria compartida para que sea borrada
-Si se pasa IPC_RMID, se ignora el tecer parametro
-La memoria se elimina solamente cuando no hay ningun proceso conectado
-ipcrm
-ipcmk
-*/
-//EEXIST fILE EXIST
-
 //Codigo
 void *crearSHM(char *path) {
     // Si retorna -1, hubo un error en shmat()
@@ -85,7 +70,7 @@ Proceso crearEstructura(char *proArray) {
     unProceso.pid = atoi(strtok(proArray,","));
     unProceso.data = strtok(NULL,",");
     unProceso.estado = atoi(strtok(NULL,","));
-    unProceso.creador = strtok(NULL,",");
+    unProceso.sockCreador = atoi(strtok(NULL,","));
     
     return unProceso;
 }
@@ -93,16 +78,21 @@ Proceso crearEstructura(char *proArray) {
 char *crearArray(Proceso unProceso) {
     char *retorno = NULL;
     
-    sprintf(retorno,"%d,%s,%d,%s",unProceso.pid,unProceso.data,unProceso.estado,unProceso.creador);
+    sprintf(retorno,"%d,%s,%d,%d",unProceso.pid,unProceso.data,unProceso.estado,unProceso.sockCreador);
 
     return retorno;
 }
 
-int buscarProc(int pid) {
-	int ret = 0;
-	
-	
-	
-	
-	return ret;
+Proceso tomarProcSHM(Proceso *lista, sem_t *sem){
+    Proceso proceso;
+    sem_wait(sem);
+    proceso = *lista;
+    sem_post(sem);
+    return proceso;
+}
+
+void guardarProcSHM(Proceso proc, Proceso *lista, sem_t *sem){
+    sem_wait(sem);
+    *lista = proc;
+    sem_post(sem);
 }
