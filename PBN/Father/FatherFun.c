@@ -89,7 +89,13 @@ void signal_handler(int signal){
 	}
 }
 
-
+void cargarListaVacia(Proceso *proc, sem_t *sem){
+    Proceso unProc = {0, NULL, ESTADO_NULL, 0};
+    
+    for(int i = 0; i < 100; i++){
+        guardarProcSHM(unProc, (proc + i), sem);
+    }
+}
 
 
 

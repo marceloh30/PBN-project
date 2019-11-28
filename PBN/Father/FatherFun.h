@@ -1,7 +1,6 @@
 #ifndef _FATHERFUN_H_
 #define _FATHERFUN_H_
 
-#include "../GeneralFunctions.h"
 #include "../SHM/SHMFun.h"
 #include <time.h>
 
@@ -18,5 +17,7 @@ int *crearProcSis(int puerto);
 void eliminarSistema(int *pid, int id, void *shm, sem_t *sem);
 
 void signal_handler(int signal);
+
+void cargarListaVacia(Proceso *pros, sem_t *sem);
 
 #endif
