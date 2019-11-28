@@ -1,6 +1,6 @@
 #include "RecepcionistaFun.h"
 
-void cursoNormalRp(int socketC){
+void cursoNormalRp(int socketC) {
 	
 	int socketA = -1;
 
@@ -53,9 +53,10 @@ void cursoNormalRp(int socketC){
 }
 
 
-char *rdFun (char *buf, void *soyA) {
-		
-	char *ret = NULL;
+char *rdFun (char *buf, void *soyA, int socket) {
+	
+	const char retAr[BUF_SIZE];
+	const char *ret = retAr;
 
 	char bufTmp[BUF_SIZE];
 	strcpy(bufTmp, buf);
@@ -72,7 +73,7 @@ char *rdFun (char *buf, void *soyA) {
 		case WRITE_SOCK: {
 			
 			int caso = atoi(strtok_r(NULL, ",", &saveptr));
-			if (caso == ACT_LISTA || caso == ACT_EST) {
+			if ( (caso == ACT_LISTA) || (caso == ACT_EST) || (caso == ACT_ENGAN) ) {
 				ret = buf;
 			}
 			else { // caso == ACT_REAN || caso == ACT_SUSP || caso == ACT_BORRAR || otro caso (inexistente!)
@@ -91,6 +92,7 @@ char *rdFun (char *buf, void *soyA) {
 			sprintf(ret,"Error inesperado en pasaje acción");
 			break;
 		}
+		
 
 		default: {
 			sprintf(ret,"Error inesperado en reenvio interno de mensajes");
@@ -101,7 +103,7 @@ char *rdFun (char *buf, void *soyA) {
 	return ret;
 }
 
-int wrFun (char *buf){
+int wrFun (char *buf, int socket) {
 
 	return 1;
 }

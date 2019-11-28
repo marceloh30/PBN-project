@@ -10,6 +10,7 @@
 //Macros
 #define WRITE_SOCK 1
 #define CANT_PROC 100
+#define MAX_CLIENTS 8 //Maxima cantidad de clientes en el sistema
 
 //Macros de estados de procesos:
 #define NUEVO 0

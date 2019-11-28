@@ -1,6 +1,6 @@
 #include "AFun.h"
 
-char *leerDatos (char *buf, void *shm) {
+char *leerDatos (static char *buf, void *shm, int sockActual) {
 
 	//Obtengo Semaforo para shm:
 	sem_t *sem = (sem_t *) (shm + SEM_OFFSET);
@@ -10,7 +10,7 @@ char *leerDatos (char *buf, void *shm) {
 	char bufTmp[BUF_SIZE];
 	strcpy(bufTmp, buf);
 	
-	char ret[BUF_SIZE];
+	static char ret[BUF_SIZE];
 	char *saveptr;
 	
 	//Interpreto mensaje:
@@ -83,7 +83,7 @@ char *leerDatos (char *buf, void *shm) {
 		
 		case ACT_ENGAN: {
 			
-			//paraWrite = WRITE_SOCK;
+			paraWrite = WRITE_SOCK;
 			sprintf(ret, "%d,%d", paraWrite, ACT_ENGAN);	
 			break;
 		}
@@ -102,7 +102,7 @@ char *leerDatos (char *buf, void *shm) {
 		}
 	}
 	//Devuelvo puntero a datos locales para evitar warnings.
-	char *pret = ret;
+	static char *pret = ret;
 	return pret;
 }
 
@@ -111,7 +111,7 @@ char *leerDatos (char *buf, void *shm) {
 Proceso *getUbicacionLibre (Proceso *shm, sem_t *sem) {
 	
 	int i, lugarLibre = 0;
-	Proceso proc;
+	static Proceso proc;
 	
 	for (i = 0; (i == CANT_PROC || lugarLibre) ; i++) {
 		
@@ -136,7 +136,8 @@ Proceso *getUbicacionLibre (Proceso *shm, sem_t *sem) {
 void crearProcSHM (int pid, int estado, char *data, int socket, Proceso *ubicacionLibre, sem_t *sem){
 
 	//Genero mensaje para enviar a crearEstructura():
-	char* datos = NULL;
+	static char esp[BUF_SIZE];
+	static char* datos = esp;
 	sprintf(datos, "%d,%d,%s,%d", pid, estado, data, socket);
 	
 	//Creo estuctura y la guardo en ubicacionLibre
@@ -157,7 +158,7 @@ char *generarLista (int filtro, int socket, Proceso *shm, sem_t *sem) {
 
 	//Inicializo variables
 	Proceso proc;
-	char ret[BUF_SIZE];
+	static char ret[BUF_SIZE];
 	int i;
 	int error = 0;
 
@@ -204,10 +205,9 @@ char *generarLista (int filtro, int socket, Proceso *shm, sem_t *sem) {
 		}
 		
 		shm++;
-		//i++;
 	}
 	//Devuelvo puntero a datos locales para evitar warnings.
-	char *pret = ret;
+	static char *pret = ret;
 	return pret;	
 }
 
@@ -233,7 +233,6 @@ int setEstado (int pid, int estado, Proceso *shm, sem_t *sem) {
 		else {
 			
 			shm++;
-			i++;
 		}
 	}
 	
@@ -255,7 +254,6 @@ int getEstado (int pid, Proceso *shm, sem_t *sem) {
 		(proc.pid == pid) ? (estado = proc.estado) : (estado = ERROR_EST);	
 
 		shm++;
-		//i++;
 	}
 	
 	return estado;

@@ -8,10 +8,10 @@
 #define ERROR_EST -1
 
 //Funciones de lectura y accion en listas/estados/acciones
-char *leerDatos (char *buf, void *shm);
+char *leerDatos (char *buf, void *shm, int socket);
 int setEstado(int pid, int estado, Proceso *shm, sem_t *sem);
 int getEstado (int pid, Proceso *shm, sem_t *sem); 
-int devolverMsj (char *buf);
+int devolverMsj (char *buf, int socket);
 char *generarLista(int filtro, int socket, Proceso *shm, sem_t *sem);
 Proceso *getUbicacionLibre(Proceso *shm, sem_t *sem);
 void crearProcSHM (int pid, int estado, char *data, int socket, Proceso *ubicacionLibre, sem_t *sem);

@@ -10,7 +10,7 @@ int main ( int argc, char *argv[] ) {
 	
 	int readfds[CANT_PROC];
 	int writefds[CANT_PROC];
-	char *buffers[CANT_PROC];
+	static char *buffers[CANT_PROC];
 	
 	int newfd, sockEsc = sockEscuchar(PUERTO_A);
 

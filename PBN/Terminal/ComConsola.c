@@ -3,7 +3,7 @@
 
 int conectarSist(int *dir, int timeOut){
 	
-	char ip[40];
+	static char ip[40];
 
 	clock_t tStart, tEnd;
     	unsigned int tiempo = 0;
@@ -21,7 +21,7 @@ int conectarSist(int *dir, int timeOut){
 			wrsocket = sockConectar(ip, dir[4]);
 			tEnd = clock();
 			tiempo = (unsigned int)(tEnd - tStart);
-		} while ( (wrsocket < 0) && (tiempo < 1000000) );
+		} while ( (wrsocket < 0) && (tiempo < 1000000) ); //Espero un pequeño tiempo para que vuelva a reintentar varias veces.
 		
 	}
 
@@ -32,27 +32,28 @@ int conectarSist(int *dir, int timeOut){
 char *enviarAccion ( int accion, int datoNum, char *datos, int socket ) {
 	char retwr;
 
-	char *ret;
+	static char *ret;
 	
-	char msj[BUF_SIZE];
+	static char msj[BUF_SIZE];
 	sprintf(msj, "%d,%d,%s,%d", accion, datoNum, datos, socket); //Envío socket para que se sepa a quien responder en A.
 	
-	if ( (retwr = write(socket, msj, BUF_SIZE)) < BUF_SIZE ) {
+	if ( (retwr = write(socket, msj, BUF_SIZE)) <= 0 ) {
 		
 		perror("Ocurrió un error al enviar mensaje al sistema");
 		ret=" ";
 		sprintf(ret, "%c", MSJ_ERROR);
+		conectado = 0;
 }
 	else {
 		if ( (accion == ACT_LISTA) || (accion == ACT_EST) ) {
 			
-			if ( (retwr = read(socket, msj, BUF_SIZE)) < BUF_SIZE ) {   //Espero la respuesta (sin importar bloqueo ya que quiero la respuesta del sist.)
+			if ( (retwr = read(socket, msj, BUF_SIZE)) <= 0 ) {   //Espero la respuesta (sin importar bloqueo ya que quiero la respuesta del sist.)
 			
 				perror("Ocurrió un error al leer mensaje del sistema");
 
 				ret=" ";
 				sprintf(ret, "%c", MSJ_ERROR);
-				
+				conectado = 0;
 			}
 			else {
 

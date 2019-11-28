@@ -1,27 +1,99 @@
 #include "ConsolaFun.h"
 
-//Eleccion de Opcion
-int opcion(int valorInf, int valorSup, char *buffer) {
-	int ingreso;
 
+
+//Funciones para select:
+char *rd(char *buf, void *rdsocks, int socket) {
+	
+	if (socket != STDIN_FILENO) { //Si es stdin, retorna el buffer recibido, en otro caso tomo accion.
+		
+		int result = atoi(strtok_r(bufTmp, ",", &saveptr));		
+		if (result == WRITE_SOCK) {
+			
+			int caso = atoi(strtok_r(NULL, ",", &saveptr));
+			switch (caso) {
+				//Los casos de lectura al pedir lista y pedir estado se encuentran en 
+				//ComConsola.c --> enviarAccion
+				case (ACT_REAN | ACT_SUSP | ACT_BORRAR): {
+					int datoNum = atoi(strtok_r(NULL, ",", &saveptr));
+					
+					if (caso == ACT_REAN) { 
+					
+						fprintf (stderr, "[%d] Proceso Reanudado.\n", datoNum);		
+					}
+					else {
+						(caso == ACT_SUSP) ? fprintf(stderr, "[%d] Proceso Suspendido.\n", datoNum) : fprintf(stderr, "[%d] Proceso Eliminado.\n", datoNum);
+					}
+					break;
+				}
+				
+				default: break;
+			}
+		}
+		else fprintf(stderr,"Error interno del sistema: %s\n",buf); //Algun error interno
+	}
+	return buf;
+}
+
+int actWr(char *buf, int socket) {
+	int ret = 0;
+	
+	(socket == STDIN_FILENO) ? ret = 0 : ret = 1; //Escribo solo hacia el socket de Rp.
+	
+	return ret;
+}
+
+//Eleccion de Opcion
+int opcion(int valorInf, int valorSup, int doSelect, int socket) {
+	
+	int ingreso;
+	
+	//variables para select:
+	static char bufStdin [BUF_SIZE];
+	static char bufRp [BUF_SIZE];
+	static char *bufs[2] = {bufStdin, bufRp};
+	int rdSocks[2] = {STDIN_FILENO, socket};
+	int wrSock[2] = {socket, 0}; //Dejo igual cantidad por compatibilidad de selectSockets
+	
 	printf("\nIngrese opcion: ");
 
-	while( ! ( sscanf(buffer, "%d", &ingreso) && ingreso >= valorInf && ingreso <= valorSup ) ) {
+	if (doSelect) { //Ya pase el menu de conexion: Tengo socket con mi Rp
+		void *rdsocksVoid = (void *) rdSocks;
+		selectSockets (rdSocks, wrSock, 0, 0, bufs, rd, rdsocksVoid, actWr); //No tiene timeout!
 		
-		sscanf(buffer, "%*[^\n]"); //Limpio buffer
-		printf("\nIngreso incorrecto.\nPor favor, ingrese un valor de la lista: ");
+		if( ! ( sscanf(buffer, "%d", &ingreso) && ingreso >= valorInf && ingreso <= valorSup ) ) {
+			
+			sscanf(buffer, "%*[^\n]"); //Limpio buffer
+			ingreso = ERROR_RD;
+			printf("\nIngreso incorrecto.\nPor favor, ingrese un valor de la lista: ");
 
-	}			
-	return ingreso;
+		}
+		
+	}
+	else { //Estoy en menu de conexion.
+		
+		if( ! ( scanf("%d", &ingreso) && ingreso >= valorInf && ingreso <= valorSup ) ) {
+			
+			scanf("%*[^\n]"); //Limpio buffer
+			ingreso = ERROR_RD;
+			printf("\nIngreso incorrecto.\nPor favor, ingrese un valor de la lista: ");
+
+		}	
+	}	
+		return ingreso;		
+		
+	}
+	
 }
 ////
 
 //Eleccion de pids de la lista
-int opcionPID (int *pids, int buffer, char *buffer) {
+int opcionPID (int *pids, int socket) {
 
 	int ingreso, largoPids, i;
 	int ingresoCorrecto = 0;
-
+	static char *buff;
+	
 	if(pids == 0) {
 		largoPids = 0;
 	}
@@ -31,9 +103,9 @@ int opcionPID (int *pids, int buffer, char *buffer) {
 
 	printf("\nIngrese PID: ");
 
-	while( ! ( sscanf(buffer, "%d", &ingreso) && !ingresoCorrecto ) ) {
+	while( ! ( sscanf(buff, "%d", &ingreso) && !ingresoCorrecto ) ) {
 
-		sscanf(buffer, "%*[^\n]"); //Limpio buffer		
+		sscanf(buff, "%*[^\n]"); //Limpio buffer		
 
 		for(i = 0; i < largoPids; i++) {
 
@@ -51,11 +123,11 @@ int opcionPID (int *pids, int buffer, char *buffer) {
 
 //Obtener pids para opcionPID()
 int *getPids (char *lista) {
-	int pidBuf[CANT_PROC];
-	int *pids = pidBuf;
+	static int pidBuf[CANT_PROC];
+	static int *pids = pidBuf;
 	char c;
     
-    	int i, dig, num = 0, j = 0;
+    int i, dig, num = 0, j = 0;
 
 	for ( i=0; i <= strlen(lista); i++ ) {
 
@@ -86,7 +158,7 @@ int seleccionProceso (int filtro, int socket) {
 	
 	printf("Accediendo a datos del sistema...\n\n");
 	
-       	char *lectura = enviarAccion(ACT_LISTA, filtro, "", socket);
+    static char *lectura = enviarAccion(ACT_LISTA, filtro, "", socket);
 
 	int pidSeleccionado;
 	
@@ -100,7 +172,7 @@ int seleccionProceso (int filtro, int socket) {
 			
 			printf("Elija un PID de la lista :\n%s", lista);
 
-			pidSeleccionado = opcionPID ( getPids(lectura) );		
+			pidSeleccionado = opcionPID ( getPids(lectura), socket );		
 		}
 		
 	}
@@ -122,7 +194,7 @@ int seleccionProceso (int filtro, int socket) {
 
 char *devolverLista (char *datos, int filtro) {
 	
-	char ret[BUF_SIZE];
+	static char ret[BUF_SIZE];
 	char dataTmp[BUF_SIZE];
 	strcpy(dataTmp,datos); //Paso a array de char para funcionamiento correcto de strtok()
 	
@@ -182,7 +254,7 @@ char *devolverLista (char *datos, int filtro) {
 		}
 	}
 	
-	char *retorno = ret;
+	static char *retorno = ret;
 	return retorno;
 
 }

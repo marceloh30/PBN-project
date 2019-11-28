@@ -1,16 +1,16 @@
 #include "FunMenus.h" 
-
+int contectado;
 //Menu inicial:
-void menuInicial(void){
-
+void menuInicial(void) {
+	conectado = 0;
 	int socket;
 	
 	int opc = -1;
-	while(opc != 2){
+	while(opc != 2) {
 		
 		printf(STR_MI);
-		opc = opcion(1,2);
-		
+		opc = opcion(1, 2, NULL);
+		while ((opc = opcion(1, 2, 0, 0)) == ERROR_RD ); 
 		
 		if (opc == 1) {
 			
@@ -31,10 +31,10 @@ void menuInicial(void){
 					printf("No te olvides de ingresar correctamente el formato!!\n\n");
 				}
 
-				else if ( ip[0]<0 || ip[0]>255 || ip[1]<0 || ip[1]>255 || ip[2]<0 || ip[2]>255 || ip[3]<0 || ip[3]>255 || ip[4]<1024 || ip[4]>65535 ) {
+				else if ( ip[0] < 0 || ip[0] > 255 || ip[1] < 0 || ip[1] > 255 || ip[2] < 0 || ip[2] > 255 || ip[3] < 0 || ip[3] > 255 || ip[4] < 1024 || ip[4] > 65535 ) {
 					
 					ingrCorrecto = 0;
-					printf("\n\nIngresa una ip correcta!\nip: %d.%d.%d.%d:%d\n", ip[0], ip[1], ip[2], ip[3], ip[4]);
+					printf("\n\nIngresa una ip correcta!\n");
 				} 
 
 			 	else ingrCorrecto = 1;
@@ -42,7 +42,7 @@ void menuInicial(void){
 			} while(!ingrCorrecto);
 			 
 			if ( ( socket = conectarSist(ip,TIME_OUT) ) > 0 ) {
-				
+				conectado = 1;
 				menuPrincipal(socket);
 			}
 
@@ -59,10 +59,9 @@ void menuInicial(void){
 			if ( scanf ( "%d", &res ) ){
 				scanf("%*[^\n]"); //Limpio buffer
 
-				if(res==1){
+				if(res==1) {
 					Errmsj(EXIT_SUCCESS, "Adios! (Saliste del Menu inicial)\n");		
 				}
-
 				else opc=-1;
 			}	
 
@@ -73,61 +72,51 @@ void menuInicial(void){
 ////
 
 //Menu principal:
-char *rd(char *buf, void *ptr){
-
-	return buf;
-}
-
-int actWr(char * buf){
-
-	return 0;
-}
 
 void menuPrincipal( int socket ) {
 	char buffer[BUF_SIZE];
 
 	int opc = -1;
-	while ( opc != 6 && opc != 7 ) {
+	while ( opc != 6 && opc != 7 && conectado) {
 	
 		printf(STR_MP);
 
-		//Realizo select para evitar perder mensajes del sistema
-		selectSockets ( stdin, socket, int myexceptfd, SEL_TIMEOUT, buffer, rd, NULL, actWr);
-		opc = opcion(1,7, buffer);
+		while ((opc = opcion(1, 7, 1, socket)) == ERROR_RD ); //Pido hasta que el ingreso sea correcto.
 
 		switch	( opc ) {
 
-			case 1: {
+			case 1: { //Submenu crear / borrar
 				Submenu1( socket );
 				break;
 			}
-			case 2: {
+			case 2: { //Submenu susp / rean
 				Submenu2( socket );
 				break;
 			}
-			case 3: {
+			case 3: { //Pedir Estado de un proceso
 
-				int procesoElegido = seleccionProceso(FILTRO_ALL, socket);
+				int procesoElegido = seleccionProceso(FILTRO_ALL, socket, buffer);
 				enviarAccion ( ACT_EST, procesoElegido, "" , socket);			
 				break;
 			}
-			case 4: {
+			case 4: { //Lista proc. S/P
 
-				devolverLista ( enviarAccion ( ACT_LISTA, FILTRO_SP , "" , socket), FILTRO_SP );
+				devolverLista ( enviarAccion ( ACT_LISTA, FILTRO_SP , "" , socket), FILTRO_SP ); //Bloquea esperando respuesta!!
 				break;
 			}
-			case 5: {
-
-				seleccionProceso(FILTRO_ALL, socket);				
+			case 5: { //Engancharse a salida de proceso
+			
+				int procesoElegido = seleccionProceso(FILTRO_ALL, socket, buffer);
+				enviarAccion ( ACT_ENGAN, procesoElegido, "" , socket);	
 				break;
 
 			}
-			case 6: {
+			case 6: { //Cerrar sesion
 				close(socket); //Cierro mi conexion con el socket.
 				break;
 			}
-			case 7: {
-				enviarAccion ( ACT_CERRAR_SIST, 0 , "" , socket);
+			case 7: { //Cerrar sistema
+				enviarAccion ( ACT_CERR_SIST, 0 , "" , socket);
 				close(socket);
 				break;
 			}
@@ -142,21 +131,28 @@ void menuPrincipal( int socket ) {
 //Submenu1:
 
 void Submenu1( int socket ) {
+	
 	char buffer[BUF_SIZE];
 
 	printf(STR_SM1);
 	int opc=-1;
 	while(opc != 3) {
 		
-		//Realizo select para evitar perder mensajes del sistema
-		selectSockets ( stdin, socket, int myexceptfd, SEL_TIMEOUT, buffer, rd, NULL, actWr);
-		opc = opcion(1,3, buffer);	
+		while ((opc = opcion(1, 3, 1, socket)) == ERROR_RD ); //Pido hasta que el ingreso sea correcto.
 		
 		switch(opc) {
 			case 1: {
-				
-				enviarAccion ( ACT_CREAR, 0 , "" , socket);
-				
+				int r;
+				size_t size = BUF_SIZE;
+				char *procSt = (char *) malloc (size);
+				do {
+				printf ("Ingrese proceso a crear: ");
+
+				r = getline (&procSt, &size, stdin);
+				} while (r == -1);
+
+				enviarAccion ( ACT_CREAR, 0 , procSt , socket);		
+				free(procSt);
 				break;
 			}
 			case 2: {
@@ -178,16 +174,16 @@ void Submenu1( int socket ) {
 
 //Submenu2:
 
-void Submenu2( int socket ){
+void Submenu2( int socket ) {
+	
 	char buffer[BUF_SIZE];
 
 	printf(STR_SM2);
 	int opc=-1;
 	while(opc != 3) {		
 	
-		//Realizo select para evitar perder mensajes del sistema
-		selectSockets ( stdin, socket, int myexceptfd, SEL_TIMEOUT, buffer, rd, NULL, actWr);
-		opc = opcion(1,3, buffer);
+	
+		while ((opc = opcion(1, 3, 1, socket)) == ERROR_RD ); //Pido hasta que el ingreso sea correcto.
 		
 		switch(opc) {
 			case 1: {
