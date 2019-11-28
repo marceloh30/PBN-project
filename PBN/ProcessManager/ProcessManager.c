@@ -1,40 +1,64 @@
 #include "ProcessManagerFun.h"
 
+static int salir;
 
-int main(int arg, char *datos[]){
-//    Proceso *shm;
-//    Proceso unProc;
-//    int i = 0;
+int main( int arg, char *datos[]) {
+    Proceso *shm;
+    Proceso unProc;
+    int aux;
+    char *enviar;
+    int i = 0;
+    int ret = 0;
     
-    pid_t pid;
-    if((pid = fork())==0){
-        execl("./Proceso","./Proceso",NULL);
-    }
-    sleep(6);
-    suspenderProceso(pid);
-    sleep(3);
-    ejecutar(pid);
+    //-----//Captura la señal para eliminarce
+    //SA_NOCLDWAIT => Evita que queden procesos zombies cuando llega la señal de un hijo que murio
+    //SA_NOCLDSTOP => La SIGCHLD se genera cuando muere el hijo
+    struct singaction act;
+    act.sa_handler = signal_handler;
+    act.sa_flags = SA_NOCLDWAIT || SA_NOCLDSTOP;
+    sigfillset(act.sa_mask); //Ignora todas las señales duerante el handler
+    sigaction(SIGALRM, &act, NULL);
+    sigaction(SIGCHLD, &act, NULL);
+    sigaction(SIGTERM,&act,NULL);
+    //-----//
     
-    //Captura la señal para eliminarce
-//    struct singaction act;
-//    act.sa_handler = signal_handler;
-//    sigaction(SIGTERM,&act,NULL);
-//    sigfillset(act.sa_mask); //Ignora todas las señales duerante el handler
+    if( (shm = conectarSHM(DIR_KEY_SHM)) != -1 ){
+        sem_t *sem = (sem_t *)(shm + SEM_OFFSET);
+        
+        while( salir == 0 ){
+            aux = accionATomar(shm + PROC_OFFSET + i, sem);
+            
+            if( aux == NO_CREADO ){
+                enviar = crearArray( tomarProsSHM(shm + PROS_OFFSET + i, sem);
+                //IMFORMAR AL USUARIO QUE NO SE CREO
+            }
+                                          
+            if( aux == CREADO ){
+                enviar = crearArray( tomarProsSHM(shm + PROS_OFFSET + i, sem);
+                //INFORMAR AL USUARIO QUE SE CREO
+            }
+            
+            i++;    //Incrementa el contador
+            if( i == 99 ) i = 0;    //Reinicia el contador
+        }
+                                          
+    } else ret = -1;
     
-//    printf("Manejador de procesos creado\n");
-//    shm = conectarSHM("../SHM/kayGeneratorSHM.c");
-//
-//    while(1){
-//        if( accionATomar(*(shm + i), shm + i) == PM_ERROR ){
-//            printf("Error al crear proceos X");
-//            crearArray(*aux);
-//            //retorna los datos del proceso
-//        }
-//        i++;
-//        if( i == 99 ) i = 0;
-//    }
-    
-//    desconectarSHM(shm);
-    return 0;
+    desconectarSHM(shm);
+    return ret;
 }
 
+void signal_handler( int signal ){
+    switch (signal) {
+            
+        case SIGTERM:
+            salir = 1;
+            break;
+            
+        case SIGCHLD:
+            break;
+            
+        default:
+            break;
+    }
+}

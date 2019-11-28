@@ -3,16 +3,16 @@
 
 
 int main ( int argc, char *argv[] ) {
-	
+
 	//Lista dinamica de Rps (los sockets a c/u de ellos)
-	Lista *listaRps = crearLista(void);
+	Lista *listaRps = crearLista();
 
 	//pointer de shm:
-	void *shm = conectarSHM(SHM_PATH); 
-
-	int readfds[100];
-	int writefds[100];
-	char *buffers[100];
+	void *shm = conectarSHM(DIR_KEY_SHM); 
+	
+	int readfds[CANT_PROC];
+	int writefds[CANT_PROC];
+	char *buffers[CANT_PROC];
 	
 	int newfd, sockEsc = sockEscuchar(PUERTO_A);
 
@@ -25,15 +25,23 @@ int main ( int argc, char *argv[] ) {
 			
 			agregarNodo (listaRps, newfd);				
 			
-			readfds[lista.cant] = newfd;
-			writefds[lista.cant] = newfd;
+			readfds[listaRps -> cant] = newfd;
+			writefds[listaRps -> cant] = newfd;
 			
 		}			
 	}
-
+	//Cierro Sockets
 	close(sockEsc);
-	liberarDatos(listaRps);
+	int i;
+	for (i = 0; i == CANT_PROC; i++) {
+		
+		close (readfds[i]);
+		close (writefds[i]);
 	
+	}
+	liberarDatosLista(listaRps);
+
+	desconectarSHM(shm);
 	return EXIT_SUCCESS;
 }
 

@@ -1,28 +1,29 @@
-//incluir senales!!!
+#ifndef _SOCKETFUNC_H
+#define _SOCKETFUNC_H_
+
 #include "../GeneralFunctions.h"
+#include "../SHM/SHMFun.h"
+#include "../Sockets/SocketsFunc.h"
 #include <setjmp.h>
 #include <signal.h>
 #include <sys/time.h>
-#include <sys/wait.h>
 #include <unistd.h>
+
 //Macros:
-#define TIEMPO_SEC 50
+#define TIEMPO_SEC 10
 #define TIEMPO_MILISEC 0
+#define FINALIZO -1
+#define NO_CREADO -2
+#define CREADO -3
 
-//Firmas:
-//int accionSHM(short int pidProceso, char *data); //Devuelve pid del proceso al cual realizó una accion
-//
-//void analizarSHM(void); //Es el encargado de llamar a accionSHM() y mirar proceso por proceso en SHM para realizar acciones
-//
-//int guardarDataEnSHM(int pidProc,struct imagenProceso *imagProc); //Guardo en SHM accion realizada sobre proceso y su imagen
-
-void reanudarProceso(pid_t pid);
+int reanudarProceso(pid_t pid);
 
 int suspenderProceso(pid_t pid);
 
-//int accionATomar(Proceso proc, Proceso *direc);
+int accionATomar(Proceso *direc, sem_t *sem);
 
 int ejecutar(pid_t pid);
 
-void signal_handler(int signal);
+void eliminarProcesos(Proceso *lista);
 
+#endif

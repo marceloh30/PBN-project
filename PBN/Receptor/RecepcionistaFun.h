@@ -5,14 +5,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "../Sockets/SocketFunc.h"
-
+#include "../GeneralFunctions.h"
 
 //Firmas:
 
 void cursoNormalRp(int socketC);
 int buscarCantidad(int array[]);
 
-char *rdFun (char *buf);
-void wrFun (char *buf);
+char *rdFun (char *buf, void *soyA);
+int wrFun (char *buf);
 
 #endif

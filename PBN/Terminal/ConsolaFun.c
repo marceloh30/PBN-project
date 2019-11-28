@@ -51,7 +51,7 @@ int opcionPID (int *pids) {
 
 //Obtener pids para opcionPID()
 int *getPids (char *lista) {
-	int pidBuf[100];
+	int pidBuf[CANT_PROC];
 	int *pids = pidBuf;
 	char c;
     

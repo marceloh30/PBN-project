@@ -10,6 +10,8 @@ void menuPrincipal( int socket ) {
 
 		opc = opcion(1,7);
 		
+		//selectSockets ( stdin, socket, int myexceptfd, long t_out, char *buff[], char *(*actRd)(char *, void *), void *shm, int (*actWr)(char *))
+
 		switch	( opc ) {
 
 			case 1: {
@@ -42,7 +44,8 @@ void menuPrincipal( int socket ) {
 				break;
 			}
 			case 7: {
-				cerrarSistema();
+				enviarAccion ( ACT_CERRAR_SIST, 0 , "" , socket);
+				close(socket);
 				break;
 			}
 			default: printf("\nError de ingreso:\nElija una opcion entre 1 y 7\n");
