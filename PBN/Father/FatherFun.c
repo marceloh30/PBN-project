@@ -1,5 +1,7 @@
 #include "FatherFun.h"
 
+volatile int pros;
+
 int *crearProcSis( int puerto ) { //Devuelvo los pid para el cierre del sistema
     //Se inicializan los valores para evitar los warnigs
     int ret;
@@ -55,25 +57,25 @@ int *crearProcSis( int puerto ) { //Devuelvo los pid para el cierre del sistema
 	
 }
 
-void eliminarSistema(int *pid, int id, void *shm, sem_t sem){
+void eliminarSistema(int *pid, int id, void *shm, sem_t *sem){
     //SIGTERM le indica a los procesos que se terminen
 
     struct timespec time = {2, 0};
     
     kill(pid[1],SIGTERM);
-	nanosleep(time, NULL);
+	nanosleep(&time, NULL);
 	if ( pros != 3) kill(pid[0], SIGKILL);
 	
     kill(pid[2],SIGTERM);
-	nanosleep(time, NULL);
+	nanosleep(&time, NULL);
 	if ( pros != 2) kill(pid[1], SIGKILL); 	
 	
 	kill(pid[3],SIGTERM);
-	nanosleep(time, NULL);
+	nanosleep(&time, NULL);
 	if ( pros != 1) kill(pid[2], SIGKILL);
     	
 	kill(pid[4],SIGTERM);
-	nanosleep(time, NULL);
+	nanosleep(&time, NULL);
 	if ( pros != 0) kill(pid[3], SIGKILL);
     
     desconectarSHM(shm);

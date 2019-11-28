@@ -204,7 +204,7 @@ char *generarLista (int filtro, int socket, Proceso *shm, sem_t *sem) {
 		}
 		
 		shm++;
-		i++;
+		//i++;
 	}
 	//Devuelvo puntero a datos locales para evitar warnings.
 	char *pret = ret;
@@ -255,7 +255,7 @@ int getEstado (int pid, Proceso *shm, sem_t *sem) {
 		(proc.pid == pid) ? (estado = proc.estado) : (estado = ERROR_EST);	
 
 		shm++;
-		i++;
+		//i++;
 	}
 	
 	return estado;

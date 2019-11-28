@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct proceso {
+typedef struct Proceso {
     pid_t pid;
     char *data;   //Largo maximo del nombre es 255 en Unix (dir + parametros!!)
     int estado;   // Ej. ejecutar

@@ -34,8 +34,10 @@ int ejecutar(pid_t pid){
 
 int accionATomar(Proceso *direc, sem_t *sem){
 
-    int ret, pid;
-    Proceso proc = tomarProcesoSHM(direc, sem);
+    int pid;
+    int ret = 0;
+    struct timespec time = {0, 5000};   //Defino la estructura para el contador
+    Proceso proc = tomarProcSHM(direc, sem);
 
     switch (proc.estado) {
 
@@ -49,19 +51,19 @@ int accionATomar(Proceso *direc, sem_t *sem){
 
                     proc.pid = pid;
                     proc.estado = EN_EJECUCION;
-                    guardarProsSHM(proc, direc, sem);
+                    guardarProcSHM(proc, direc, sem);
                     
                     if( ejecutar(pid) == FINALIZO ){
-                        porc.estado == ELIMINADO;
-                        guardarProsSHM(proc, direc, sem);
+                        proc.estado = ELIMINADO;
+                        guardarProcSHM(proc, direc, sem);
                     } else{
-                        porc.estado == ACTIVO;
-                        guardarProsSHM(proc, direc, sem);
+                        proc.estado = ACTIVO;
+                        guardarProcSHM(proc, direc, sem);
                     }
                     
                     ret = CREADO;
                     
-                } else NO_CREADO;
+                } else ret = NO_CREADO;
                 
             } else {
                 
@@ -72,43 +74,39 @@ int accionATomar(Proceso *direc, sem_t *sem){
             break;
 
         case ELIMINAR:
-            struct timespec time = {0, 5000};
             
             kill(proc.pid, SIGTERM);
             puase();
             
-            if( nanosleep(time) != -1){
+            if( nanosleep(&time, NULL) != -1){
                 kill(proc.pid, SIGKILL); //Si el proceso termina antes, salta el handler y nanosleep retorna -1
                 pause();
             }
             
             proc.estado = ELIMINADO;
-            guardarProsSHM(proc, direc, sem);
+            guardarProcSHM(proc, direc, sem);
             
-            ret =0;
             break;
 
         case ACTIVO:
 
             proc.estado = EN_EJECUCION;
-            guardarProsSHM(proc, direc, sem);
+            guardarProcSHM(proc, direc, sem);
             
             if( ejecutar(proc.pid) == -1 ){
                 proc.estado = ELIMINADO;
-                guardarProsSHM(proc, direc, sem);
+                guardarProcSHM(proc, direc, sem);
             } else {
-                proc = tomarProcesoSHM(*direc, sem);
+                proc = tomarProcSHM(direc, sem);
                 if ( proc.estado != SUSPENDIDO ){
                     proc.estado = ACTIVO;
-                    guardarProsSHM(proc, direc, sem);
+                    guardarProcSHM(proc, direc, sem);
                 }
             }
-            
-            ret = 0;
+
             break;
 
         default:
-            ret = 0;
             break;
     }
 
@@ -116,11 +114,11 @@ int accionATomar(Proceso *direc, sem_t *sem){
 }
 
 void eliminarProcesos(Proceso *lista){
-    Proceso unPro;
+//    Proceso unPro;
     //kill(0,SIGKILL);
-    for( int i = 0; i < 100; i++ ){
-        if( lugarVacio(lista + i) != 1){
-            kill(unPro.pid, SIGKILL);
-        }
-    }
+//    for( int i = 0; i < 100; i++ ){
+//        if( lugarVacio(lista + i) != 1){
+//            kill(unPro.pid, SIGKILL);
+//        }
+//    }
 }

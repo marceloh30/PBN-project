@@ -15,7 +15,7 @@
 //Firmas
 int *crearProcSis(int puerto);
 
-void eliminarSistema(int *pid, int id, void *shm);
+void eliminarSistema(int *pid, int id, void *shm, sem_t *sem);
 
 void signal_handler(int signal);
 

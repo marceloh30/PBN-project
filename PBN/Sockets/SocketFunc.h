@@ -27,8 +27,6 @@
 //-Puertos predefinidos
 #define PUERTO_A 4028 
 
-
-
 //Firmas
 int sockEscuchar (uint16_t port);
 
