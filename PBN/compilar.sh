@@ -20,4 +20,7 @@ gcc -pthread -Wall  GeneralFunctions.h GeneralFunctions.c Sockets/SocketFunc.h S
 ####Compila el generador de la key de SHM####
 gcc -Wall SHM/keyGeneratorSHM.c -o SHM/keyGeneratorSHM;
 
+####Compila los procesos####
+gcc -Wall ProcessManager/Proceso.c -o Proceso
+
 echo "\n\n\n\n------------------SISTEMA COMPILADO------------------\n\n\n\n" #Genera espacio entre cada corrida
